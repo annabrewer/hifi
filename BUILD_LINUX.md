@@ -37,7 +37,13 @@ sudo apt-get -y install libpulse0 libnss3 libnspr4 libfontconfig1 libxcursor1 li
 
 Install build tools:
 ```bash
+# For Ubuntu 18.04
 sudo apt-get install cmake
+```
+```bash
+# For Ubuntu 16.04
+wget https://cmake.org/files/v3.9/cmake-3.9.5-Linux-x86_64.sh
+sudo sh cmake-3.9.5-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir
 ```
 
 Install Python 3:
@@ -45,6 +51,10 @@ Install Python 3:
 sudo apt-get install python3.6
 ```
 
+Install node, required to build the jsdoc documentation
+```bash
+sudo apt-get install nodejs
+```
 
 ### Get code and checkout the tag you need
 
@@ -61,7 +71,7 @@ git tags
 
 Then checkout last tag with:
 ```bash
-git checkout tags/v0.71.0
+git checkout tags/v0.79.0
 ```
 
 ### Compiling
@@ -91,15 +101,21 @@ In a server, it does not make sense to compile interface
 
 ### Running the software
 
+#### Domain server
+
 Running domain server:
 ```bash
 ./domain-server/domain-server
 ```
 
+#### Assignment clients
+
 Running assignment client:
 ```bash
 ./assignment-client/assignment-client -n 6
 ```
+
+#### Interface
 
 Running interface:
 ```bash
@@ -107,3 +123,51 @@ Running interface:
 ```
 
 Go to localhost in the running interface.
+
+##### Ubuntu 18.04 only
+
+In Ubuntu 18.04 there is a problem related with NVidia driver library version.
+
+It can be workarounded following these steps:
+
+Uninstall incompatible nvtt libraries:
+```bash
+sudo apt-get remove libnvtt2 libnvtt-dev
+```
+
+Install libssl1.0-dev:
+```bash
+sudo apt-get -y install libssl1.0-dev
+```
+
+Clone castano nvidia-texture-tools:
+```
+git clone https://github.com/castano/nvidia-texture-tools
+cd nvidia-texture-tools/
+```
+
+Make these changes in repo:
+* In file **VERSION** set `2.2.1`
+* In file **configure**:
+  * set `build="release"`
+  * set `-DNVTT_SHARED=1`
+
+Configure, build and install:
+```
+./configure
+make
+sudo make install
+```
+
+Link compiled files:
+```
+sudo ln -s /usr/local/lib/libnvcore.so /usr/lib/libnvcore.so
+sudo ln -s /usr/local/lib/libnvimage.so /usr/lib/libnvimage.so
+sudo ln -s /usr/local/lib/libnvmath.so /usr/lib/libnvmath.so
+sudo ln -s /usr/local/lib/libnvtt.so /usr/lib/libnvtt.so
+```
+
+After running this steps you can run interface:
+```
+interface/interface
+```

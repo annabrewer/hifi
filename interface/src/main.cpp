@@ -53,6 +53,15 @@ int main(int argc, const char* argv[]) {
 	// https://i.kym-cdn.com/entries/icons/original/000/008/342/ihave.jpg
     QSurfaceFormat::setDefaultFormat(format);
 #endif
+
+#if defined(Q_OS_WIN) 
+    // Check the minimum version of 
+    if (gl::getAvailableVersion() < gl::getRequiredVersion()) {
+        MessageBoxA(nullptr, "Interface requires OpenGL 4.1 or higher", "Unsupported", MB_OK);
+        return -1;
+    }
+#endif
+
     setupHifiApplication(BuildInfo::INTERFACE_NAME);
 
     QStringList arguments;
@@ -302,8 +311,11 @@ int main(int argc, const char* argv[]) {
         PROFILE_SYNC_BEGIN(startup, "app full ctor", "");
         Application app(argcExtended, const_cast<char**>(argvExtended.data()), startupTime, runningMarkerExisted);
         PROFILE_SYNC_END(startup, "app full ctor", "");
-        
-        
+
+#if defined(Q_OS_LINUX)
+        app.setWindowIcon(QIcon(PathUtils::resourcesPath() + "images/hifi-logo.svg"));
+#endif
+
         QTimer exitTimer;
         if (traceDuration > 0.0f) {
             exitTimer.setSingleShot(true);
