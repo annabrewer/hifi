@@ -104,6 +104,7 @@ public:
  *
  * @hifi-interface
  * @hifi-client-entity
+ * @hifi-avatar
  * @hifi-server-entity
  * @hifi-assignment-client
  *
@@ -144,6 +145,9 @@ public:
     void run();
 
     QString getFilename() const;
+
+
+    QList<EntityItemID> getListOfEntityScriptIDs();
 
     /**jsdoc
      * Stop the current script.
@@ -563,15 +567,18 @@ public:
     bool getEntityScriptDetails(const EntityItemID& entityID, EntityScriptDetails &details) const;
     bool hasEntityScriptDetails(const EntityItemID& entityID) const;
 
+    void setScriptEngines(QSharedPointer<ScriptEngines>& scriptEngines) { _scriptEngines = scriptEngines; }
+
 public slots:
 
     /**jsdoc
      * @function Script.callAnimationStateHandler
-     * @param {function} callback
-     * @param {object} parameters
-     * @param {string[]} names
-     * @param {boolean} useNames
-     * @param {object} resultHandler
+     * @param {function} callback - Callback.
+     * @param {object} parameters - Parameters.
+     * @param {string[]} names - Names.
+     * @param {boolean} useNames - Use names.
+     * @param {function} resultHandler - Result handler.
+     * @deprecated This function is deprecated and will be removed.
      */
     void callAnimationStateHandler(QScriptValue callback, AnimVariantMap parameters, QStringList names, bool useNames, AnimVariantResultHandler resultHandler);
 
@@ -747,7 +754,6 @@ protected:
     void updateEntityScriptStatus(const EntityItemID& entityID, const EntityScriptStatus& status, const QString& errorInfo = QString());
     void setEntityScriptDetails(const EntityItemID& entityID, const EntityScriptDetails& details);
     void setParentURL(const QString& parentURL) { _parentURL = parentURL; }
-    void processDeferredEntityLoads(const QString& entityScript, const EntityItemID& leaderID);
 
     QObject* setupTimerWithInterval(const QScriptValue& function, int intervalMS, bool isSingleShot);
     void stopTimer(QTimer* timer);
@@ -766,8 +772,8 @@ protected:
      */
     Q_INVOKABLE void entityScriptContentAvailable(const EntityItemID& entityID, const QString& scriptOrURL, const QString& contents, bool isURL, bool success, const QString& status);
 
-    EntityItemID currentEntityIdentifier {}; // Contains the defining entity script entity id during execution, if any. Empty for interface script execution.
-    QUrl currentSandboxURL {}; // The toplevel url string for the entity script that loaded the code being executed, else empty.
+    EntityItemID currentEntityIdentifier; // Contains the defining entity script entity id during execution, if any. Empty for interface script execution.
+    QUrl currentSandboxURL; // The toplevel url string for the entity script that loaded the code being executed, else empty.
     void doWithEnvironment(const EntityItemID& entityID, const QUrl& sandboxURL, std::function<void()> operation);
     void callWithEnvironment(const EntityItemID& entityID, const QUrl& sandboxURL, QScriptValue function, QScriptValue thisObject, QScriptValueList args);
 
@@ -783,8 +789,6 @@ protected:
     QSet<QUrl> _includedURLs;
     mutable QReadWriteLock _entityScriptsLock { QReadWriteLock::Recursive };
     QHash<EntityItemID, EntityScriptDetails> _entityScripts;
-    QHash<QString, EntityItemID> _occupiedScriptURLs;
-    QList<DeferredLoadEntity> _deferredEntityLoads;
     EntityScriptContentAvailableMap _contentAvailableQueue;
 
     bool _isThreaded { false };
@@ -817,6 +821,8 @@ protected:
     static const QString _SETTINGS_ENABLE_EXTENDED_EXCEPTIONS;
 
     Setting::Handle<bool> _enableExtendedJSExceptions { _SETTINGS_ENABLE_EXTENDED_EXCEPTIONS, true };
+
+    QWeakPointer<ScriptEngines> _scriptEngines;
 };
 
 ScriptEnginePointer scriptEngineFactory(ScriptEngine::Context context,

@@ -42,6 +42,7 @@ private:
  * 
  * @hifi-interface
  * @hifi-client-entity
+ * @hifi-avatar
  */
 
 class Snapshot : public QObject, public Dependency {
@@ -96,6 +97,8 @@ private:
     bool _cubemapOutputFormat;
     QTimer _snapshotTimer;
     qint16 _snapshotIndex;
+    bool _waitingOnSnapshot { false };
+    bool _taking360Snapshot { false };
     bool _oldEnabled;
     QVariant _oldAttachedEntityId;
     QVariant _oldOrientation;
