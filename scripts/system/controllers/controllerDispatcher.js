@@ -12,7 +12,7 @@
    LEFT_HAND, RIGHT_HAND, NEAR_GRAB_PICK_RADIUS, DEFAULT_SEARCH_SPHERE_DISTANCE, DISPATCHER_PROPERTIES,
    getGrabPointSphereOffset, HMD, MyAvatar, Messages, findHandChildEntities, Picks, PickType, Pointers,
    PointerManager, getGrabPointSphereOffset, HMD, MyAvatar, Messages, findHandChildEntities, Picks, PickType, Pointers,
-   PointerManager, print, Selection, DISPATCHER_HOVERING_LIST, DISPATCHER_HOVERING_STYLE
+   PointerManager, print, Keyboard
 */
 
 controllerDispatcherPlugins = {};
@@ -53,11 +53,13 @@ Script.include("/~/system/libraries/controllerDispatcherUtils.js");
         this.blacklist = [];
         this.pointerManager = new PointerManager();
         this.grabSphereOverlays = [null, null];
+        this.targetIDs = {};
 
         // a module can occupy one or more "activity" slots while it's running.  If all the required slots for a module are
         // not set to false (not in use), a module cannot start.  When a module is using a slot, that module's name
         // is stored as the value, rather than false.
         this.activitySlots = {
+            head: false,
             leftHand: false,
             rightHand: false,
             rightHandTrigger: false,
@@ -128,9 +130,6 @@ Script.include("/~/system/libraries/controllerDispatcherUtils.js");
         this.dataGatherers.rightControllerLocation = function () {
             return getControllerWorldLocation(Controller.Standard.RightHand, true);
         };
-
-        Selection.enableListHighlight(DISPATCHER_HOVERING_LIST, DISPATCHER_HOVERING_STYLE);
-        Selection.enableListToScene(DISPATCHER_HOVERING_LIST);
 
         this.updateTimings = function () {
             _this.intervalCount++;
@@ -227,8 +226,8 @@ Script.include("/~/system/libraries/controllerDispatcherUtils.js");
                         if (tabletIndex !== -1 && closebyOverlays.indexOf(HMD.tabletID) === -1) {
                             nearbyOverlays.splice(tabletIndex, 1);
                         }
-                        if (miniTabletIndex !== -1
-                                && ((closebyOverlays.indexOf(HMD.miniTabletID) === -1) || h !== HMD.miniTabletHand)) {
+                        if (miniTabletIndex !== -1 &&
+                            ((closebyOverlays.indexOf(HMD.miniTabletID) === -1) || h !== HMD.miniTabletHand)) {
                             nearbyOverlays.splice(miniTabletIndex, 1);
                         }
                     }
@@ -338,6 +337,23 @@ Script.include("/~/system/libraries/controllerDispatcherUtils.js");
                 });
             }
 
+            // also make sure we have the properties from the current module's target
+            for (var tIDRunningPluginName in _this.runningPluginNames) {
+                if (_this.runningPluginNames.hasOwnProperty(tIDRunningPluginName)) {
+                    var targetIDs = _this.targetIDs[tIDRunningPluginName];
+                    if (targetIDs) {
+                        for (var k = 0; k < targetIDs.length; k++) {
+                            var targetID = targetIDs[k];
+                            if (!nearbyEntityPropertiesByID[targetID]) {
+                                var targetProps = Entities.getEntityProperties(targetID, DISPATCHER_PROPERTIES);
+                                targetProps.id = targetID;
+                                nearbyEntityPropertiesByID[targetID] = targetProps;
+                            }
+                        }
+                    }
+                }
+            }
+
             // bundle up all the data about the current situation
             var controllerData = {
                 triggerValues: [_this.leftTriggerValue, _this.rightTriggerValue],
@@ -404,10 +420,23 @@ Script.include("/~/system/libraries/controllerDispatcherUtils.js");
                             Script.beginProfileRange("dispatch.run." + runningPluginName);
                         }
                         var runningness = plugin.run(controllerData, deltaTime);
+
+                        if (DEBUG) {
+                            if (JSON.stringify(_this.targetIDs[runningPluginName]) != JSON.stringify(runningness.targets)) {
+                                print("controllerDispatcher targetIDs[" + runningPluginName + "] = " +
+                                      JSON.stringify(runningness.targets));
+                            }
+                        }
+
+                        _this.targetIDs[runningPluginName] = runningness.targets;
                         if (!runningness.active) {
                             // plugin is finished running, for now.  remove it from the list
                             // of running plugins and mark its activity-slots as "not in use"
                             delete _this.runningPluginNames[runningPluginName];
+                            delete _this.targetIDs[runningPluginName];
+                            if (DEBUG) {
+                                print("controllerDispatcher deleted targetIDs[" + runningPluginName + "]");
+                            }
                             _this.markSlots(plugin, false);
                             _this.pointerManager.makePointerInvisible(plugin.parameters.handLaser);
                             if (DEBUG) {
@@ -427,9 +456,19 @@ Script.include("/~/system/libraries/controllerDispatcherUtils.js");
             }
         };
 
+        this.leftBlacklistTabletIDs = [];
+        this.rightBlacklistTabletIDs = [];
+
+        this.setLeftBlacklist = function () {
+            Pointers.setIgnoreItems(_this.leftPointer, _this.blacklist.concat(_this.leftBlacklistTabletIDs));
+        };
+        this.setRightBlacklist = function () {
+            Pointers.setIgnoreItems(_this.rightPointer, _this.blacklist.concat(_this.rightBlacklistTabletIDs));
+        };
+
         this.setBlacklist = function() {
-            Pointers.setIgnoreItems(_this.leftPointer, this.blacklist);
-            Pointers.setIgnoreItems(_this.rightPointer, this.blacklist);
+            _this.setLeftBlacklist();
+            _this.setRightBlacklist();
         };
 
         var MAPPING_NAME = "com.highfidelity.controllerDispatcher";
@@ -448,7 +487,7 @@ Script.include("/~/system/libraries/controllerDispatcherUtils.js");
 
         this.leftPointer = this.pointerManager.createPointer(false, PickType.Ray, {
             joint: "_CAMERA_RELATIVE_CONTROLLER_LEFTHAND",
-            filter: Picks.PICK_OVERLAYS | Picks.PICK_ENTITIES,
+            filter: Picks.PICK_OVERLAYS | Picks.PICK_ENTITIES | Picks.PICK_INCLUDE_NONCOLLIDABLE,
             triggers: [{action: Controller.Standard.LTClick, button: "Focus"}, {action: Controller.Standard.LTClick, button: "Primary"}],
             posOffset: getGrabPointSphereOffset(Controller.Standard.LeftHand, true),
             hover: true,
@@ -456,9 +495,10 @@ Script.include("/~/system/libraries/controllerDispatcherUtils.js");
             distanceScaleEnd: true,
             hand: LEFT_HAND
         });
+        Keyboard.setLeftHandLaser(this.leftPointer);
         this.rightPointer = this.pointerManager.createPointer(false, PickType.Ray, {
             joint: "_CAMERA_RELATIVE_CONTROLLER_RIGHTHAND",
-            filter: Picks.PICK_OVERLAYS | Picks.PICK_ENTITIES,
+            filter: Picks.PICK_OVERLAYS | Picks.PICK_ENTITIES | Picks.PICK_INCLUDE_NONCOLLIDABLE,
             triggers: [{action: Controller.Standard.RTClick, button: "Focus"}, {action: Controller.Standard.RTClick, button: "Primary"}],
             posOffset: getGrabPointSphereOffset(Controller.Standard.RightHand, true),
             hover: true,
@@ -466,6 +506,7 @@ Script.include("/~/system/libraries/controllerDispatcherUtils.js");
             distanceScaleEnd: true,
             hand: RIGHT_HAND
         });
+        Keyboard.setRightHandLaser(this.rightPointer);
         this.leftHudPointer = this.pointerManager.createPointer(true, PickType.Ray, {
             joint: "_CAMERA_RELATIVE_CONTROLLER_LEFTHAND",
             filter: Picks.PICK_HUD,
@@ -488,12 +529,13 @@ Script.include("/~/system/libraries/controllerDispatcherUtils.js");
             distanceScaleEnd: true,
             hand: RIGHT_HAND
         });
+
         this.mouseRayPick = Pointers.createPointer(PickType.Ray, {
             joint: "Mouse",
-            filter: Picks.PICK_ENTITIES | Picks.PICK_OVERLAYS,
+            filter: Picks.PICK_OVERLAYS | Picks.PICK_ENTITIES | Picks.PICK_INCLUDE_NONCOLLIDABLE,
             enabled: true
         });
-        this.handleHandMessage = function(channel, data, sender) {
+        this.handleMessage = function (channel, data, sender) {
             var message;
             if (sender === MyAvatar.sessionUUID) {
                 try {
@@ -514,6 +556,19 @@ Script.include("/~/system/libraries/controllerDispatcherUtils.js");
                                 _this.setBlacklist();
                             }
                         }
+
+                        if (action === "tablet") {
+                            var tabletIDs = message.blacklist ?
+                                [HMD.tabletID, HMD.tabletScreenID, HMD.homeButtonID, HMD.homeButtonHighlightID] :
+                                [];
+                            if (message.hand === LEFT_HAND) {
+                                _this.leftBlacklistTabletIDs = tabletIDs;
+                                _this.setLeftBlacklist();
+                            } else {
+                                _this.rightBlacklistTabletIDs = tabletIDs;
+                                _this.setRightBlacklist();
+                            }
+                        }
                     }
                 } catch (e) {
                     print("WARNING: handControllerGrab.js -- error parsing message: " + data);
@@ -525,7 +580,6 @@ Script.include("/~/system/libraries/controllerDispatcherUtils.js");
             Controller.disableMapping(MAPPING_NAME);
             _this.pointerManager.removePointers();
             Pointers.removePointer(this.mouseRayPick);
-            Selection.disableListHighlight(DISPATCHER_HOVERING_LIST);
         };
     }
 
@@ -554,7 +608,8 @@ Script.include("/~/system/libraries/controllerDispatcherUtils.js");
 
     var controllerDispatcher = new ControllerDispatcher();
     Messages.subscribe('Hifi-Hand-RayPick-Blacklist');
-    Messages.messageReceived.connect(controllerDispatcher.handleHandMessage);
+    Messages.messageReceived.connect(controllerDispatcher.handleMessage);
+
     Script.scriptEnding.connect(controllerDispatcher.cleanup);
     Script.setTimeout(controllerDispatcher.update, BASIC_TIMER_INTERVAL_MS);
 }());
