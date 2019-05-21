@@ -10,9 +10,9 @@ You will need the following tools to build Android targets.
 
 ### Android Studio
 
-Download the Android Studio installer and run it.   Once installed, at the welcome screen, click configure in the lower right corner and select SDK manager
+Download the Android Studio installer and run it.   Once installed, at the welcome screen, click _Configure_ in the lower right corner and select _SDK Manager_
 
-From the SDK Platforms tab, select API levels 24 and 26.  
+From the SDK Platforms tab, select API levels 26 and 28.  
 
 From the SDK Tools tab select the following
 
@@ -26,39 +26,18 @@ From the SDK Tools tab select the following
 
 Make sure the NDK installed version is 18 (or higher)
 
-# Environment 
-
-Setting up the environment for android builds requires some additional steps
-
-#### Set up machine specific Gradle properties
-
-Create a `gradle.properties` file in $HOME/.gradle.   Edit the file to contain the following
-
-    HIFI_ANDROID_PRECOMPILED=<your_home_directory>/Android/hifi_externals
-
-Note, do not use `$HOME` for the path.  It must be a fully qualified path name.
-
-### Setup the repository
+# Environment
 
 Clone the repository
 
 `git clone https://github.com/highfidelity/hifi.git`
-
-Enter the repository `android` directory
-
-`cd hifi/android`
-
-Execute two gradle pre-build steps.  This steps should only need to be done once, unless you're working on the Android dependencies
-
-`./gradlew extractDependencies`
-
-`./gradlew setupDependencies`
 
 # Building & Running
 
 * Open Android Studio
 * Choose _Open Existing Android Studio Project_
 * Navigate to the `hifi` repository and choose the `android` folder and select _OK_
+* Wait for Gradle to sync (this should take around 20 minutes)
 * From the _Build_ menu select _Make Project_
 * Once the build completes, from the _Run_ menu select _Run App_ 
 
