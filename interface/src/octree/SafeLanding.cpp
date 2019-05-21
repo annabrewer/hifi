@@ -72,7 +72,7 @@ void SafeLanding::addTrackedEntity(const EntityItemID& entityID) {
         Locker lock(_lock);
         EntityItemPointer entity = _entityTree->findEntityByID(entityID);
 
-        if (entity && entity->getCreated() < _startTime) {
+        if (entity && !entity->isLocalEntity() && entity->getCreated() < _startTime) {
 
             _trackedEntities.emplace(entityID, entity);
             int trackedEntityCount = (int)_trackedEntities.size();
@@ -81,7 +81,7 @@ void SafeLanding::addTrackedEntity(const EntityItemID& entityID) {
                 _maxTrackedEntityCount = trackedEntityCount;
                 _trackedEntityStabilityCount = 0;
             }
-            qCDebug(interfaceapp) << "Safe Landing: Tracking entity " << entity->getItemName();
+            //qCDebug(interfaceapp) << "Safe Landing: Tracking entity " << entity->getItemName();
         }
     }
 }
@@ -107,7 +107,7 @@ void SafeLanding::noteReceivedsequenceNumber(int sequenceNumber) {
 }
 
 bool SafeLanding::isLoadSequenceComplete() {
-    if (isEntityLoadingComplete() && isSequenceNumbersComplete()) {
+    if ((isEntityLoadingComplete() && isSequenceNumbersComplete()) || qApp->failedToConnectToEntityServer()) {
         Locker lock(_lock);
         _initialStart = INVALID_SEQUENCE;
         _initialEnd = INVALID_SEQUENCE;
@@ -168,7 +168,7 @@ bool isEntityPhysicsReady(const EntityItemPointer& entity) {
             bool hasAABox;
             entity->getAABox(hasAABox);
             if (hasAABox && downloadedCollisionTypes.count(modelEntity->getShapeType()) != 0) {
-                return (!entity->shouldBePhysical() || entity->isReadyToComputeShape() || modelEntity->computeShapeFailedToLoad());
+                return (!entity->shouldBePhysical() || entity->isInPhysicsSimulation() || modelEntity->computeShapeFailedToLoad());
             }
         }
     }
