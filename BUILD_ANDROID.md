@@ -4,7 +4,7 @@ Please read the [general build guide](BUILD.md) for information on building othe
 
 Building is currently supported on OSX, Windows and Linux, but developers intending to do work on the library dependencies are strongly urged to use 64 bit Linux as a build platform
 
-## Visual Studio
+### Visual Studio
 
 If you don’t have Community or Professional edition of Visual Studio 2017, download [Visual Studio Community 2017](https://visualstudio.microsoft.com/vs/older-downloads/).
 
@@ -12,7 +12,7 @@ When selecting components, check "Desktop development with C++". Also on the rig
 
 If you already have Visual Studio installed and need to add python, open the "Add or remove programs" control panel and find the "Microsoft Visual Studio Installer".  Select it and click "Modify".  In the installer, select "Modify" again, then check "Python Development" and allow the installer to apply the changes.
 
-## Android Studio
+### Android Studio
 
 Download the [Android Studio](https://developer.android.com/studio/index.html) installer and run it. Once installed, at the welcome screen, click _Configure_ in the lower right corner and select _SDK Manager_
 
@@ -33,9 +33,10 @@ Also, make sure the NDK installed version is 18 (or higher).
 
 # Environment
 
-## Set up machine specific Gradle properties
-
+### Create a keystore in Android Studio
 Follow the directions [here](https://developer.android.com/studio/publish/app-signing#generate-key) to create a keystore file. You can save it anywhere (preferably not in the `hifi` folder).
+
+### Set up machine specific Gradle properties
 
 Create a `gradle.properties` file in the `.gradle` folder (`$HOME/.gradle` on Mac, `Users/<yourname>/.gradle` on Windows). Edit the file to contain the following
 
@@ -47,14 +48,14 @@ Create a `gradle.properties` file in the `.gradle` folder (`$HOME/.gradle` on Ma
 
 Note, do not use $HOME for the path. It must be a fully qualified path name. Also, be sure to use forward slashes in your path.
 
-### If you are building for an Android phone
+#### If you are building for an Android phone
 
 Add these lines to `gradle.properties`
 
     SUPPRESS_QUEST_INTERFACE
     SUPPRESS_QUEST_FRAME_PLAYER
 
-### If you are building for an Oculus Quest
+#### If you are building for an Oculus Quest
 
 Add these lines to `gradle.properties`
 
@@ -63,27 +64,27 @@ Add these lines to `gradle.properties`
 
 The above code to suppress modules is not necessary, but will speed up the build process.
 
-## Clone the repository
+### Clone the repository
 
 `git clone https://github.com/highfidelity/hifi.git `
 
-#Building & Running
+# Building & Running
 
-##Building Modules
+### Building Modules
 
 * Open Android Studio
-* Choose _Open Existing Android Studio Project_
+* Choose _Open an existing Android Studio project_
 * Navigate to the `hifi` repository and choose the `android` folder and select _OK_
-* Wait for Gradle to sync (this should take around 20 minutes)
+* Wait for Gradle to sync (this should take around 20 minutes the first time)
 * From the _Build_ menu select _Make Project_
 
-##Running a Module
+### Running a Module
 
 * In the toolbar at the top of Android Studio, next to the green hammer icon, you should see a dropdown menu. From this menu, select _Edit Configurations_
 * Click the plus sign in the upper left corner of the new window, and select _Android App_
 * From the _Module_ drop down menu, select the module you are intending to run (most likely interface or questInterface)
 * From the _Launch_ drop down menu, select _Specified Activity_
-* In _Activity_ directly below, put `io.highfidelity.hifiinterface.PermissionChecker`
+* In the _Activity_ field directly below, put `io.highfidelity.hifiinterface.PermissionChecker`
 * Click the green play button in the top toolbar of Android Studio
 
 #Troubleshooting
