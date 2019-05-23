@@ -10,7 +10,7 @@ You will need the following tools to build Android targets.
 
 ### Visual Studio
 
-If you don’t have Community or Professional edition of Visual Studio 2017, download [Visual Studio Community 2017](https://www.visualstudio.com/downloads/).
+If you don’t have Community or Professional edition of Visual Studio 2017, download [Visual Studio Community 2017](https://visualstudio.microsoft.com/vs/older-downloads/).
 
 When selecting components, check "Desktop development with C++". Also on the right on the Summary toolbar, check "Windows 8.1 SDK and UCRT SDK" and "VC++ 2015.3 v140 toolset (x86,x64)". If you do not already have a python development environment installed, also check "Python Development" in this screen.
 
