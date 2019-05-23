@@ -2,19 +2,19 @@ Please read the [general build guide](BUILD.md) for information on building othe
 
 # Dependencies
 
-Building is currently supported on OSX, Windows and Linux, but developers intending to do work on the library dependencies are strongly urged to use 64 bit Linux as a build platform
+Building is currently supported on OSX, Windows and Linux, but developers intending to do work on the library dependencies are strongly urged to use 64 bit Linux as a build platform.
 
 ### Visual Studio
 
 If you don’t have Community or Professional edition of Visual Studio 2017, download [Visual Studio Community 2017](https://visualstudio.microsoft.com/vs/older-downloads/).
 
-When selecting components, check "Desktop development with C++". Also on the right on the Summary toolbar, check "Windows 8.1 SDK and UCRT SDK" and "VC++ 2015.3 v140 toolset (x86,x64)". If you do not already have a python development environment installed, also check "Python Development" in this screen.
+When selecting components, check "Desktop development with C++". Also on the right on the Summary toolbar, check "Windows 8.1 SDK and UCRT SDK" and "VC++ 2015.3 v140 toolset (x86,x64)". If you do not already have a Python development environment installed, also check "Python Development" in this screen.
 
 If you already have Visual Studio installed and need to add python, open the "Add or remove programs" control panel and find the "Microsoft Visual Studio Installer".  Select it and click "Modify".  In the installer, select "Modify" again, then check "Python Development" and allow the installer to apply the changes.
 
 ### Android Studio
 
-Download the [Android Studio](https://developer.android.com/studio/index.html) installer and run it. Once installed, at the welcome screen, click _Configure_ in the lower right corner and select _SDK Manager_
+Download the [Android Studio](https://developer.android.com/studio/index.html) installer and run it. Once installed, at the welcome screen, click _Configure_ in the lower right corner and select _SDK Manager_.
 
 From the _SDK Platforms_ tab, select API levels 26 and 28.  
 
@@ -82,19 +82,19 @@ The above code to suppress modules is not necessary, but will speed up the build
 
 * In the toolbar at the top of Android Studio, next to the green hammer icon, you should see a dropdown menu. From this menu, select _Edit Configurations_
 * Click the plus sign in the upper left corner of the new window, and select _Android App_
-* From the _Module_ drop down menu, select the module you are intending to run (most likely interface or questInterface)
+* From the _Module_ drop down menu, select the module you are intending to run (most likely `interface` or `questInterface`)
 * From the _Launch_ drop down menu, select _Specified Activity_
 * In the _Activity_ field directly below, put `io.highfidelity.hifiinterface.PermissionChecker`
 * Click the green play button in the top toolbar of Android Studio
 
-#Troubleshooting
+# Troubleshooting
 
 To view a more complete debug log,
 
 * Click the icon with the two overlapping squares in the upper left corner of the tab where the sync is running (hover text says _Toggle view_)
 * To change verbosity, click _File > Settings_. Under _Build, Execution, Deployment > Compiler_ you can add command-line flags, as per Gradle documentation
 
-Some things you can try if you want to do a clean build,
+Some things you can try if you want to do a clean build
  
 * Delete the `build` and `.externalNativeBuild` folders from the folder for each module you're building (for example, `hifi/android/apps/interface`)
 * If you have set your `HIFI_VCPKG_ROOT` environment variable, delete the contents of that directory; otherwise, delete `AppData/Local/Temp/hifi`
