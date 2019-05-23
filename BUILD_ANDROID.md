@@ -18,7 +18,7 @@ Download the [Android Studio](https://developer.android.com/studio/index.html) i
 
 From the _SDK Platforms_ tab, select API levels 26 and 28.  
 
-In the _SDK Tools_ tab, select the following
+From the _SDK Tools_ tab, select the following
 
 * Android SDK Build-Tools
 * GPU Debugging Tools
