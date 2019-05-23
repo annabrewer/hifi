@@ -82,13 +82,11 @@ To view a more complete debug log,
 * Click the icon with the two overlapping squares in the upper left corner of the tab where the sync is running (hover text says _Toggle view_).
 * To change verbosity, click _File > Settings_. Under _Build, Execution, Deployment > Compiler_ you can add command-line flags, as per Gradle documentation.
 
-If you've made some changes and want to do a clean build,
+Some things you can try if you want to do a clean build,
  
 * Delete the `build` and `.externalNativeBuild` folders from the folder for each module you're building (for example, `hifi/android/apps/interface`).
+* If you have set your `HIFI_VCPKG_ROOT` environment variable, delete the contents of that directory; otherwise, delete `AppData/Local/Temp/hifi`.
 * In Android Studio, click _File > Invalidate Caches / Restart_ and select _Invalidate and Restart_.
 
-If the Gradle sync fails due to a "missing vcpkg configuration" error from `hifi/CMakeLists.txt`,
-
-* If you have set your `HIFI_VCPKG_ROOT` environment variable, delete the contents of that directory.
-* Otherwise, delete `AppData/Local/Temp/hifi`.
-* Follow the directions above to do a clean build.
+If you see lots of "couldn't acquire lock" errors,
+* Open Task Manager and close any running Clang / Gradle processes.
