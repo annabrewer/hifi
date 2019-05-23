@@ -10,7 +10,7 @@ If you don’t have Community or Professional edition of Visual Studio 2017, downl
 
 When selecting components, check "Desktop development with C++". Also on the right on the Summary toolbar, check "Windows 8.1 SDK and UCRT SDK" and "VC++ 2015.3 v140 toolset (x86,x64)". If you do not already have a Python development environment installed, also check "Python Development" in this screen.
 
-If you already have Visual Studio installed and need to add python, open the "Add or remove programs" control panel and find the "Microsoft Visual Studio Installer".  Select it and click "Modify".  In the installer, select "Modify" again, then check "Python Development" and allow the installer to apply the changes.
+If you already have Visual Studio installed and need to add Python, open the "Add or remove programs" control panel and find the "Microsoft Visual Studio Installer".  Select it and click "Modify".  In the installer, select "Modify" again, then check "Python Development" and allow the installer to apply the changes.
 
 ### Android Studio
 
