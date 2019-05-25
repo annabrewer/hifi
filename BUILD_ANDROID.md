@@ -2,11 +2,11 @@ Please read the [general build guide](BUILD.md) for information on building othe
 
 # Dependencies
 
-Building is currently supported on OSX, Windows and Linux, but developers intending to do work on the library dependencies are strongly urged to use 64 bit Linux as a build platform.
+Building is currently supported on Windows, OSX and Linux, but developers intending to do work on the library dependencies are strongly urged to use 64 bit Linux as a build platform.
 
 ### OS specific dependencies
 
-Please install the dependencies for your OS using the [Windows](BUILD_WIN.md), [Mac](BUILD_OSX.md) or [Linux](BUILD_LINUX.md) build instructions before attempting to build for Android.
+Please install the dependencies for your OS using the [Windows](BUILD_WIN.md), [OSX](BUILD_OSX.md) or [Linux](BUILD_LINUX.md) build instructions before attempting to build for Android.
 
 ### Android Studio
 
@@ -34,7 +34,7 @@ Follow the directions [here](https://developer.android.com/studio/publish/app-si
 
 ### Set up machine specific Gradle properties
 
-Create a `gradle.properties` file in the `.gradle` folder (`$HOME/.gradle` on Mac, `Users/<yourname>/.gradle` on Windows). Edit the file to contain the following
+Create a `gradle.properties` file in the `.gradle` folder (`$HOME/.gradle` on Unix, `Users/<yourname>/.gradle` on Windows). Edit the file to contain the following
 
     HIFI_ANDROID_PRECOMPILED=<your_home_directory>/Android/hifi_externals
     HIFI_ANDROID_KEYSTORE=<key_store_directory>/<keystore_name>.jks
@@ -55,8 +55,8 @@ Add these lines to `gradle.properties`
 
 Add these lines to `gradle.properties`
 
-    SUPPRESS_FRAME_PLAYER
     SUPPRESS_INTERFACE
+    SUPPRESS_FRAME_PLAYER
 
 The above code to suppress modules is not necessary, but will speed up the build process.
 

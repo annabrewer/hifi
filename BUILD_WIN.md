@@ -7,19 +7,17 @@ Note: The prerequisites will require about 10 GB of space on your drive. You wil
 
 ### Step 1. Visual Studio & Python
 
-If you don’t have Community or Professional edition of Visual Studio 2019, download [Visual Studio Community 2019](https://visualstudio.microsoft.com/vs/). If you have Visual Studio 2017, you are not required to download Visual Studio 2019.
+If you don’t have Community or Professional edition of Visual Studio, download [Visual Studio Community 2019](https://visualstudio.microsoft.com/vs/). If you have Visual Studio 2017, you are not required to download Visual Studio 2019.
 
-When selecting components, check "Desktop development with C++".
+When selecting components, check "Desktop development with C++". On the right on the Summary toolbar, select the following components.
 
 #### If you have Visual Studio 2017,
 
-On the right on the Summary toolbar, check
 * Windows 8.1 SDK and UCRT SDK
 * VC++ 2015.3 v14.00 (v140) toolset for desktop
 
 #### If you have Visual Studio 2019,
 
-On the right on the Summary toolbar, check
 * MSVC v141 - VS 2017 C++ x64/x86 build tools
 * MSVC v140 - VS 2015 C++ build tools (v14.00)
 
