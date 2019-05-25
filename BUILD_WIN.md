@@ -7,11 +7,23 @@ Note: The prerequisites will require about 10 GB of space on your drive. You wil
 
 ### Step 1. Visual Studio 2017 & Python
 
-If you don’t have Community or Professional edition of Visual Studio 2017, download [Visual Studio Community 2017](https://visualstudio.microsoft.com/vs/older-downloads/).
+If you don’t have Community or Professional edition of Visual Studio 2019, download [Visual Studio Community 2019](https://visualstudio.microsoft.com/vs/). If you have Visual Studio 2017, you are not required to download Visual Studio 2019.
 
-When selecting components, check "Desktop development with C++". Also on the right on the Summary toolbar, check "Windows 8.1 SDK and UCRT SDK" and "VC++ 2015.3 v140 toolset (x86,x64)". If you do not already have a python development environment installed, also check "Python Development" in this screen.
+When selecting components, check "Desktop development with C++".
 
-If you already have Visual Studio installed and need to add python, open the "Add or remove programs" control panel and find the "Microsoft Visual Studio Installer".  Select it and click "Modify".  In the installer, select "Modify" again, then check "Python Development" and allow the installer to apply the changes.
+####If you have Visual Studio 2017,
+On the right on the Summary toolbar, check
+* Windows 8.1 SDK and UCRT SDK
+* VC++ 2015.3 v14.00 (v140) toolset for desktop
+
+####If you have Visual Studio 2019,
+On the right on the Summary toolbar, check
+* MSVC v141 - VS 2017 C++ x64/x86 build tools
+* MSVC v140 - VS 2015 C++ build tools (v14.00)
+
+If you do not already have a Python development environment installed, also check "Python Development" in this screen.
+
+If you already have Visual Studio installed and need to add Python, open the "Add or remove programs" control panel and find the "Microsoft Visual Studio Installer".  Select it and click "Modify".  In the installer, select "Modify" again, then check "Python Development" and allow the installer to apply the changes.
 
 ### Step 1a.  Alternate Python
 
