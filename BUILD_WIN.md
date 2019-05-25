@@ -11,12 +11,12 @@ If you don’t have Community or Professional edition of Visual Studio, download
 
 When selecting components, check "Desktop development with C++". On the right on the Summary toolbar, select the following components.
 
-#### If you have Visual Studio 2017,
+#### If you're installing Visual Studio 2017,
 
 * Windows 8.1 SDK and UCRT SDK
 * VC++ 2015.3 v14.00 (v140) toolset for desktop
 
-#### If you have Visual Studio 2019,
+#### If you're installing Visual Studio 2019,
 
 * MSVC v141 - VS 2017 C++ x64/x86 build tools
 * MSVC v140 - VS 2015 C++ build tools (v14.00)
@@ -40,7 +40,12 @@ Run Command Prompt from Start and run the following commands:
 `cd "%HIFI_DIR%"`  
 `mkdir build`  
 `cd build`  
-`cmake .. -G "Visual Studio 15 Win64"`  
+
+#### If you're using Visual Studio 2017,
+Run `cmake .. -G "Visual Studio 15 Win64"`.
+
+#### If you're using Visual Studio 2019,
+Run `cmake .. -G "Visual Studio 16 2019" -A x64`.
 
 Where `%HIFI_DIR%` is the directory for the highfidelity repository.
 

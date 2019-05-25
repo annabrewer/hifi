@@ -76,12 +76,30 @@ The above code to suppress modules is not necessary, but will speed up the build
 
 ### Running a Module
 
-* In the toolbar at the top of Android Studio, next to the green hammer icon, you should see a dropdown menu. From this menu, select _Edit Configurations_
-* Click the plus sign in the upper left corner of the new window, and select _Android App_
-* From the _Module_ drop down menu, select the module you are intending to run (most likely `interface` or `questInterface`)
+* In the toolbar at the top of Android Studio, next to the green hammer icon, you should see a dropdown menu.
+* You may already see a configuration for the module you are trying to build. If so, select it. 
+* Otherwise, select _Edit Configurations_.
+
+Your configuration should be as follows
+
+* Type: Android App
+* Module: <your module> (you probably want `interface` or `questInterface`)
+
+For the interface modules, you also need to select the activity to launch. 
+
+#### For the Android phone interface
+
 * From the _Launch_ drop down menu, select _Specified Activity_
 * In the _Activity_ field directly below, put `io.highfidelity.hifiinterface.PermissionChecker`
-* Click the green play button in the top toolbar of Android Studio
+
+#### For the Oculus Quest interface
+
+* From the _Launch_ drop down menu, select _Specified Activity_
+* In the _Activity_ field directly below, put `io.highfidelity.questInterface.PermissionsChecker`
+
+Note the 's' in Permission**s**Checker for the Quest.
+
+Now you are able to run your module! Click the green play button in the top toolbar of Android Studio
 
 # Troubleshooting
 
