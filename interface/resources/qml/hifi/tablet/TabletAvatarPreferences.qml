@@ -22,7 +22,7 @@ StackView {
     signal sendToScript(var message);
 
     function pushSource(path) {
-        profileRoot.push(Qt.resolvedUrl(path));
+        profileRoot.push(Qt.resolvedUrl(path)); 
     }
 
     function popSource() {
