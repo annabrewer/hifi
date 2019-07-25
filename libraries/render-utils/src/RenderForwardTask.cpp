@@ -19,7 +19,8 @@
 #include <gpu/Texture.h>
 #include <graphics/ShaderConstants.h>
 #include <render/ShapePipeline.h>
-
+#include <render/ResampleTask.h>
+#include <android/log.h>
 #include <render/FilterTask.h>
 
 #include "RenderHifi.h"
@@ -146,21 +147,23 @@ void RenderForwardTask::build(JobModel& task, const render::Varying& input, rend
     const auto resolveInputs = ResolveFramebuffer::Inputs(scaledPrimaryFramebuffer, static_cast<gpu::FramebufferPointer>(nullptr)).asVarying();
     const auto resolvedFramebuffer = task.addJob<ResolveFramebuffer>("Resolve", resolveInputs);
 
-    //const auto toneMappedBuffer = resolvedFramebuffer;
+    const auto toneMappedBuffer = resolvedFramebuffer;
+    __android_log_write(ANDROID_LOG_DEBUG, "ANNA", "");
 #else
     const auto newResolvedFramebuffer = task.addJob<NewOrDefaultFramebuffer>("MakeResolvingFramebuffer");
 
     const auto resolveInputs = ResolveFramebuffer::Inputs(scaledPrimaryFramebuffer, newResolvedFramebuffer).asVarying();
     const auto resolvedFramebuffer = task.addJob<ResolveFramebuffer>("Resolve", resolveInputs);
 
-#endif
-
     // Lighting Buffer ready for tone mapping
     const auto toneMappingInputs = resolvedFramebuffer;
     const auto toneMappedBuffer = task.addJob<ToneMapAndResample>("ToneMapAndResample", toneMappingInputs);
 
+#endif
+    const auto primaryFramebuffer = task.addJob<render::UpsampleToBlitFramebuffer>("PrimaryBufferUpscale", toneMappedBuffer);
+
     // HUD Layer
-    const auto renderHUDLayerInputs = RenderHUDLayerTask::Input(toneMappedBuffer, lightingModel, hudOpaque, hudTransparent, hazeFrame).asVarying();
+    const auto renderHUDLayerInputs = RenderHUDLayerTask::Input(primaryFramebuffer, lightingModel, hudOpaque, hudTransparent, hazeFrame).asVarying();
     task.addJob<RenderHUDLayerTask>("RenderHUDLayer", renderHUDLayerInputs);
 }
 
