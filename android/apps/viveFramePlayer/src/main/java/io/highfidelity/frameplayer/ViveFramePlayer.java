@@ -11,34 +11,29 @@
 package io.highfidelity.frameplayer;
 
 import com.htc.vr.BuildConfig;
-import com.htc.vr.sdk.VRActivity;
 
-import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
-import android.annotation.TargetApi;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.htc.vr.sdk.QtVRActivity;
+import org.qtproject.qt5.android.bindings.QtActivity;
 
-public class ViveFramePlayer extends QtVRActivity {
+//import com.htc.vr.sdk.QtVRActivity;
+
+public class ViveFramePlayer extends QtActivity {
     private static final String TAG = "wvr_hellovr";
 
     private static final String ACTION_SWITCH_DEBUG = "com.htc.vr.samples.wvr_hellovr.ACTION_SWITCH_DEBUG";
@@ -55,8 +50,11 @@ public class ViveFramePlayer extends QtVRActivity {
     static {
         System.loadLibrary("viveFramePlayer");
     }
+
+    //TODO dont forget to uncomment the next 3 commented lines
+
     public ViveFramePlayer() {
-        super.setUsingRenderBaseActivity(true);
+        //super.setUsingRenderBaseActivity(true);
     }
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -65,8 +63,8 @@ public class ViveFramePlayer extends QtVRActivity {
             Log.i(TAG,"onReceive: start");
             if (intent.getAction().equals(ACTION_SWITCH_DEBUG)) {
                 mDebug = !mDebug;
-                SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getContext());
-                p.edit().putBoolean(SP_DEBUG, mDebug).commit();
+                //SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getContext());
+                //p.edit().putBoolean(SP_DEBUG, mDebug).commit();
                 mFlag = (mFlag & ~FLAG_DEBUG) | (mDebug ? FLAG_DEBUG : 0);
             } else if (intent.getAction().equals(ACTION_SWITCH_MSAA)) {
                 boolean msaa = (mFlag & FLAG_MSAA) == 0;  // invert flag value here

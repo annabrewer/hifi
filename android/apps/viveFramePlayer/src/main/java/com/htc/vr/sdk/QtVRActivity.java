@@ -1,9 +1,8 @@
-//package io.highfidelity.frameplayer;
-
-
 package com.htc.vr.sdk;
 
-import android.app.Activity;
+
+//package com.htc.vr.sdk;
+
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Configuration;
@@ -17,7 +16,6 @@ import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import com.htc.vr.sdk.VRMiracastConnector.Callback;
-import com.htc.vr.sdk.VR;
 
 import org.qtproject.qt5.android.bindings.QtActivity;
 

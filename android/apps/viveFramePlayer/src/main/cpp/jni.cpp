@@ -16,6 +16,17 @@
 #include <unistd.h>
 #include <wvr/wvr.h>
 
+#include <android/log.h>
+
+#include <QtGui/QGuiApplication>
+#include <QtCore/QTimer>
+#include <QtCore/QFileInfo>
+#include <QtAndroidExtras/QAndroidJniObject>
+
+#include <Trace.h>
+
+#include <QtGui/QWindow>
+
 // DEBUG can be disabled when the Activity ask.
 extern bool gDebug;
 extern bool gDebugOld;
@@ -23,7 +34,47 @@ extern bool gMsaa;
 extern bool gScene;
 extern bool gSceneOld;
 
+void messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message) {
+    if (!message.isEmpty()) {
+        const char* local = message.toStdString().c_str();
+        switch (type) {
+            case QtDebugMsg:
+                __android_log_write(ANDROID_LOG_DEBUG, "Interface", local);
+                break;
+            case QtInfoMsg:
+                __android_log_write(ANDROID_LOG_INFO, "Interface", local);
+                break;
+            case QtWarningMsg:
+                __android_log_write(ANDROID_LOG_WARN, "Interface", local);
+                break;
+            case QtCriticalMsg:
+                __android_log_write(ANDROID_LOG_ERROR, "Interface", local);
+                break;
+            case QtFatalMsg:
+            default:
+                __android_log_write(ANDROID_LOG_FATAL, "Interface", local);
+                abort();
+        }
+    }
+}
+
 int main(int argc, char *argv[]) {
+    //setupHifiApplication("gpuFramePlayer");
+    QGuiApplication app(argc, argv);
+    auto oldMessageHandler = qInstallMessageHandler(messageHandler);
+    DependencyManager::set<tracing::Tracer>();
+    QWindow window;
+    QTimer::singleShot(10, []{
+        __android_log_write(ANDROID_LOG_WARN, "QQQ", "notifyLoadComplete");
+        //AndroidHelper::instance().notifyLoadComplete();
+    });
+    __android_log_write(ANDROID_LOG_WARN, "QQQ", "Exec");
+    app.exec();
+    __android_log_write(ANDROID_LOG_WARN, "QQQ", "Exec done");
+    qInstallMessageHandler(oldMessageHandler);
+}
+
+int render(int argc, char *argv[]) {
     LOGENTRY();
     LOGI("HelloVR main, new MainApplication ");
     MainApplication *app = new MainApplication();
@@ -70,7 +121,7 @@ JNIEXPORT void JNICALL Java_io_highfidelity_frameplayer_ViveFramePlayer_init(JNI
     LOGI("MainActivity_init: call  Context::getInstance()->init");
     Context::getInstance()->init(env, assetManagerInstance);
     LOGI("register WVR main when library loading");
-    WVR_RegisterMain(main);
+    //WVR_RegisterMain(main);
 }
 
 JNIEXPORT void JNICALL Java_io_highfidelity_frameplayer_ViveFramePlayer_setFlag(JNIEnv * env, jclass clazz, jint flag) {

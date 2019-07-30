@@ -36,6 +36,7 @@
 #include <RaySphereIntersection.h>
 
 #include "hellovr.h"
+#include "GLContext.h"
 
 // Return micro second.  Should always positive because now is bigger.
 #define timeval_subtract(now, last) \
@@ -144,6 +145,10 @@ bool MainApplication::initVR() {
     if (pError != WVR_RenderError_None) {
         LOGE("Present init failed - Error[%d]", pError);
     }
+
+    //GLContext testContext;
+    //testContext.create(eglGetDisplay(EGL_DEFAULT_DISPLAY), eglGetCurrentContext(), false);
+    //testContext.makeCurrent();
 
     mInteractionMode = WVR_GetInteractionMode();
     mGazeTriggerType = WVR_GetGazeTriggerType();
