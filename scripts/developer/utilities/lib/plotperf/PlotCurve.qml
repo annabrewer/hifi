@@ -106,10 +106,8 @@ Item {
                 ctx.strokeStyle= Qt.rgba(1, 1, 1, 1);
                 ctx.lineWidth="1";
                 ctx.moveTo(0, height); 
-                
-                //ctx.bezierCurveTo(0, height, 20, height - 10, 50, 50); 
 
-                var point = points[0];
+                var object = points[0];
                 var value = point["prop"];
 
                 var val = point.object[value];
