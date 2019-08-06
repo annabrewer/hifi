@@ -23,7 +23,8 @@ struct ToneMappingParams {
     vec4 _toeLnA_toeB_linearLnA_linearB;
     vec4 _linearOffsetX_2powExp_w_invW;
     vec4 _x0_y0_x1_y1;
-    ivec4 curve_s0_s1_s2;
+    vec4 _toeScaleY_linearScaleY_shoulderScaleY_s3;
+    ivec4 toneCurve_s0_s1_s2;
 };
 
 struct CurveSegment {
@@ -41,14 +42,12 @@ struct FullCurve
 	float m_invW;
 
 	float m_x0;
-	float m_x1;
 	float m_y0;
+    float m_x1;
 	float m_y1;
 };
 
 CurveSegment m_segments[3];
-float ALMOST_ZERO = 0.00001f;
-float ALMOST_ONE = 0.99999f;
 
 LAYOUT(binding=RENDER_UTILS_BUFFER_TM_PARAMS) uniform toneMappingParamsBuffer {
     ToneMappingParams params;
@@ -106,6 +105,18 @@ float getY1() {
     return params._x0_y0_x1_y1.w;
 }
 
+float getToeScaleY() {
+    return params._toeScaleY_linearScaleY_shoulderScaleY_s3.x;
+}
+
+float getLinearScaleY() {
+    return params._toeScaleY_linearScaleY_shoulderScaleY_s3.y;
+}
+
+float getShoulderScaleY() {
+    return params._toeScaleY_linearScaleY_shoulderScaleY_s3.z;
+}
+
 LAYOUT(binding=RENDER_UTILS_TEXTURE_TM_COLOR) uniform sampler2D colorMap;
 
 layout(location=0) in vec2 varTexCoord0;
@@ -125,21 +136,6 @@ float EvalCurveSegment(CurveSegment curve, float x) {
 	return y0*curve.m_scaleY + curve.m_offsetY;
 }
 
-float EvalInvCurveSegment(CurveSegment curve, float y) {
-	float y0 = (y-curve.m_offsetY)/curve.m_scaleY;
-	float x0 = 0.0f;
-
-	// watch out for log(0) again
-	if (y0 > 0)
-	{
-		x0 = exp((log(y0) - curve.m_lnA)/curve.m_B);
-	}
-
-    float x = x0/curve.m_scaleX + curve.m_offsetX;
-
-    return x;
-}
-
 float EvalFullCurve(FullCurve curve, float srcX) {
 	float normX = srcX * curve.m_invW;
 	int index = (normX < curve.m_x0) ? 0 : ((normX < curve.m_x1) ? 1 : 2);
@@ -148,47 +144,20 @@ float EvalFullCurve(FullCurve curve, float srcX) {
 	return ret;
 }
 
-float EvalInvFullCurve(FullCurve curve, float y) {
-	int index = (y < curve.m_y0) ? 0 : ((y < curve.m_y1) ? 1 : 2);
-	CurveSegment segment = m_segments[index];
-
-	float normX = EvalInvCurveSegment(segment, y);
-	return normX * curve.m_W;
-}
-
-// convert to y=mx+b
-float[2] AsSlopeIntercept(float x0, float x1, float y0, float y1) {
-	float dy = (y1-y0);
-	float dx = (x1-x0);
-    float m;
-	if (dx == 0)
-		m = 1.0f;
-	else
-		m = dy/dx;
-
-	float b = y0 - x0*m;
-
-    float mb[2];
-    mb[0] = m;
-    mb[1] = b;
-    return mb;
-}
 void main(void) {
-// using the inverse gamma (so that higher gamma = brighter) flips the image for some reason, so we flip it back here
 <@if HIFI_USE_MIRRORED@>
-    vec4 fragColorRaw = texture(colorMap, varTexCoord0);
-<@else@>
     vec4 fragColorRaw = texture(colorMap, vec2(1.0 - varTexCoord0.x, varTexCoord0.y));
+<@else@>
+    vec4 fragColorRaw = texture(colorMap, varTexCoord0);
 <@endif@>
+    vec3 fragColor = fragColorRaw.xyz;
+    vec3 srcColor = fragColor * getTwoPowExposure();
+
     FullCurve curve = FullCurve(getW(), getInvW(), getX0(), getY0(), getX1(), getY1());
 
-    m_segments[0] = CurveSegment(0.0, 0.0, 1.0, 1.0, getToeLnA(), getToeB());
-    m_segments[1] = CurveSegment(getLinearOffsetX(), 0.0, 1.0, 1.0, getLinearLnA(), getLinearB());
-    m_segments[2] = CurveSegment(getShoulderOffsetX(), getShoulderOffsetY(), -1.0, -1.0, getShoulderLnA(), getShoulderB());
-
-    vec3 fragColor = fragColorRaw.xyz;
-
-    vec3 srcColor = fragColor * getTwoPowExposure();
+    m_segments[0] = CurveSegment(0.0, 0.0, 1.0, getToeScaleY(), getToeLnA(), getToeB());
+    m_segments[1] = CurveSegment(getLinearOffsetX(), 0.0, 1.0, getLinearScaleY(), getLinearLnA(), getLinearB());
+    m_segments[2] = CurveSegment(getShoulderOffsetX(), getShoulderOffsetY(), -1.0, getShoulderScaleY(), getShoulderLnA(), getShoulderB());
 
     float curveValR = EvalFullCurve(curve, srcColor.x);
     float curveValG = EvalFullCurve(curve, srcColor.y);

@@ -31,23 +31,6 @@ Column {
 
         spacing: 5
 
-        function itemIndex(item) {
-            if (item.parent == null)
-                return -1
-            var siblings = item.parent.children
-            for (var i = 0; i < siblings.length; i++)
-                if (siblings[i] == item)
-                    return i
-            return -1 //will never happen
-        }
-
-        function previousItem(item) {
-            if (item.parent == null)
-                return null
-            var index = itemIndex(item)
-            return (index > 0)? item.parent.children[itemIndex(item) - 1]: null
-        }
-
         Repeater {
             
             model: [

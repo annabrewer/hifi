@@ -20,7 +20,8 @@ struct ToneMappingParams {
     vec4 _toeLnA_toeB_linearLnA_linearB;
     vec4 _linearOffsetX_2powExp_w_invW;
     vec4 _x0_y0_x1_y1;
-    ivec4 curve_s0_s1_s2;
+    vec4 _toeScaleY_linearScaleY_shoulderScaleY_s3;
+    ivec4 toneCurve_s0_s1_s2;
 };
 
 const float GAMMA_22 = 2.2;
@@ -34,10 +35,10 @@ LAYOUT(binding=RENDER_UTILS_BUFFER_TM_PARAMS) uniform toneMappingParamsBuffer {
     ToneMappingParams params;
 };
 float getTwoPowExposure() {
-    return params._exp_2powExp_toeStrength_toeLength.y;
+    return params._linearOffsetX_2powExp_w_invW.y;
 }
 int getToneCurve() {
-    return params.curve_s0_s1_s2;
+    return params.toneCurve_s0_s1_s2.x;
 }
 
 LAYOUT(binding=RENDER_UTILS_TEXTURE_TM_COLOR) uniform sampler2D colorMap;

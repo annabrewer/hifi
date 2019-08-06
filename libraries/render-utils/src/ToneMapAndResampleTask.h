@@ -69,8 +69,8 @@ struct FullCurve
     float m_invW;
 
     float m_x0;
-    float m_x1;
     float m_y0;
+    float m_x1;
     float m_y1;
 };
 
@@ -84,13 +84,10 @@ class ToneMappingConfig : public render::Job::Config {
     Q_PROPERTY(float shoulderLength MEMBER shoulderLength WRITE setShoulderLength);
     Q_PROPERTY(float shoulderAngle MEMBER shoulderAngle WRITE setShoulderAngle);
     Q_PROPERTY(float gamma MEMBER gamma WRITE setGamma);
-    /*
-    Q_PROPERTY(float W MEMBER toeStrength);
     Q_PROPERTY(float x0 MEMBER x0);
-    Q_PROPERTY(float x1 MEMBER x1);
     Q_PROPERTY(float y0 MEMBER y0);
+    Q_PROPERTY(float x1 MEMBER x1);
     Q_PROPERTY(float y1 MEMBER y1);
-    */
 
 public:
     ToneMappingConfig() : render::Job::Config(true) {}
@@ -103,6 +100,8 @@ public:
     void setShoulderLength(float newShoulderLength) { shoulderLength = newShoulderLength; emit dirty(); }
     void setShoulderAngle(float newShoulderAngle) { shoulderAngle = newShoulderAngle; emit dirty(); }
     void setGamma(float newGamma) { gamma = newGamma; emit dirty(); }
+
+    Q_INVOKABLE std::vector<float> sampleCurve(int index, int numSamples);
 
     float exposure{ 0.0f };
     float toeStrength{ 0.5f };
@@ -165,6 +164,10 @@ public:
 
     FullCurve CreateCurve(const CurveParamsDirect srcParams);
 
+    float EvalCurveSegment(CurveSegment curve, float x);
+
+    FullCurve curve;
+
 protected:
     static gpu::PipelinePointer _pipeline;
     static gpu::PipelinePointer _mirrorPipeline;
@@ -181,7 +184,7 @@ protected:
 
     void setCurveParams(FullCurve curve);
 
-    CurveParamsUser userParams = { 0.5, 0.5, 2.0, 0.5, 1.0, 2.2 };
+    CurveParamsUser userParams;
 
 private:
     gpu::PipelinePointer _blitLightBuffer;
@@ -196,19 +199,23 @@ private:
 
         float _toeLnA;
         float _toeB;
-
         float _linearLnA;
         float _linearB;
-        float _linearOffsetX;
 
+        float _linearOffsetX;
         float _twoPowExposure = 1.0f;
- 
         float _fullCurveW;
         float _fullCurveInvW;
+
         float _fullCurveX0;
         float _fullCurveY0;
         float _fullCurveX1;
         float _fullCurveY1;
+
+        float _toeScaleY;
+        float _linearScaleY;
+        float _shoulderScaleY;
+        float _s3;
 
         int _toneCurve = (int)ToneCurve::Gamma22;
 

@@ -30,6 +30,7 @@ gpu::PipelinePointer ToneMapAndResample::_piecewiseMirrorPipeline;
 ToneMapAndResample::ToneMapAndResample() {
     Parameters parameters;
     _parametersBuffer = gpu::BufferView(std::make_shared<gpu::Buffer>(sizeof(Parameters), (const gpu::Byte*) &parameters));
+    userParams = { 0.5, 0.5, 2.0, 0.5, 1.0, 2.2 };
 }
 
 void ToneMapAndResample::init() {
@@ -47,7 +48,7 @@ void ToneMapAndResample::init() {
 
 void ToneMapAndResample::setExposure(float exposure) {
     auto& params = _parametersBuffer.get<Parameters>();
-    float twoPowExp = pow(2.0, exposure);
+    float twoPowExp = powf(2.0, exposure);
     if (params._twoPowExposure != twoPowExp) {
         _parametersBuffer.edit<Parameters>()._twoPowExposure = twoPowExp;
     }
@@ -60,45 +61,33 @@ void ToneMapAndResample::setToneCurve(ToneCurve curve) {
     }
 }
 void ToneMapAndResample::setToeStrength(float strength) {
-    if (userParams.m_toeStrength != strength) {
         userParams.m_toeStrength = strength;
         _dirty = true;
-    }
 }
 
 void ToneMapAndResample::setToeLength(float length) {
-    if (userParams.m_toeLength != length) {
         userParams.m_toeLength = length;
         _dirty = true;
-    }
 }
 
 void ToneMapAndResample::setShoulderStrength(float strength) {
-    if (userParams.m_shoulderStrength != strength) {
         userParams.m_shoulderStrength = strength;
         _dirty = true;
-    }
 }
 
 void ToneMapAndResample::setShoulderLength(float length) {
-    if (userParams.m_shoulderLength != length) {
         userParams.m_shoulderLength = length;
         _dirty = true;
-    }
 }
 
 void ToneMapAndResample::setShoulderAngle(float angle) {
-    if (userParams.m_shoulderAngle != angle) {
         userParams.m_shoulderAngle = angle;
         _dirty = true;
-    }
 }
 
 void ToneMapAndResample::setGamma(float gamma) {
-    if (userParams.m_gamma != gamma) {
         userParams.m_gamma = gamma;
         _dirty = true;
-    }
 }
 
 void ToneMapAndResample::setCurveParams(FullCurve curve) {
@@ -108,21 +97,24 @@ void ToneMapAndResample::setCurveParams(FullCurve curve) {
     CurveSegment linear = m_segments[1];
     CurveSegment shoulder = m_segments[2];
 
-    _parametersBuffer.edit<Parameters>()._shoulderOffsetX = shoulder.m_offsetX;
-    _parametersBuffer.edit<Parameters>()._shoulderOffsetY = shoulder.m_offsetY;
-    _parametersBuffer.edit<Parameters>()._shoulderLnA = shoulder.m_lnA;
-    _parametersBuffer.edit<Parameters>()._shoulderB = shoulder.m_B;
-    _parametersBuffer.edit<Parameters>()._toeLnA = toe.m_lnA;
-    _parametersBuffer.edit<Parameters>()._toeB = toe.m_B;
-    _parametersBuffer.edit<Parameters>()._linearLnA = linear.m_lnA;
-    _parametersBuffer.edit<Parameters>()._linearB = linear.m_B;
-    _parametersBuffer.edit<Parameters>()._linearOffsetX = linear.m_offsetX;
-    _parametersBuffer.edit<Parameters>()._fullCurveW = curve.m_W;
-    _parametersBuffer.edit<Parameters>()._fullCurveInvW = curve.m_invW;
-    _parametersBuffer.edit<Parameters>()._fullCurveX0 = curve.m_x0;
-    _parametersBuffer.edit<Parameters>()._fullCurveY0 = curve.m_y0;
-    _parametersBuffer.edit<Parameters>()._fullCurveX1 = curve.m_x1;
-    _parametersBuffer.edit<Parameters>()._fullCurveY1 = curve.m_y1;
+    params._shoulderOffsetX = shoulder.m_offsetX;
+    params._shoulderOffsetY = shoulder.m_offsetY;
+    params._shoulderLnA = shoulder.m_lnA;
+    params._shoulderB = shoulder.m_B;
+    params._toeLnA = toe.m_lnA;
+    params._toeB = toe.m_B;
+    params._linearLnA = linear.m_lnA;
+    params._linearB = linear.m_B;
+    params._linearOffsetX = linear.m_offsetX;
+    params._fullCurveW = curve.m_W;
+    params._fullCurveInvW = curve.m_invW;
+    params._fullCurveX0 = curve.m_x0;
+    params._fullCurveY0 = curve.m_y0;
+    params._fullCurveX1 = curve.m_x1;
+    params._fullCurveY1 = curve.m_y1;
+    params._toeScaleY = toe.m_scaleY;
+    params._linearScaleY = linear.m_scaleY;
+    params._shoulderScaleY = shoulder.m_scaleY;
 }
 
 void ToneMapAndResample::configure(const Config& config) {
@@ -142,7 +134,9 @@ void ToneMapAndResample::run(const RenderContextPointer& renderContext, const In
 
     RenderArgs* args = renderContext->args;
 
-    if (_dirty) {
+    auto& params = _parametersBuffer.get<Parameters>();
+
+    if (_dirty && params._toneCurve == (int)ToneCurve::Piecewise) {
         CurveParamsDirect curveParams = CalcDirectParamsFromUser(userParams);
         FullCurve curve = CreateCurve(curveParams);
 
@@ -172,8 +166,6 @@ void ToneMapAndResample::run(const RenderContextPointer& renderContext, const In
 
     glm::ivec4 destViewport{ 0, 0, bufferSize.x, bufferSize.y };
 
-    auto& params = _parametersBuffer.get<Parameters>();
-
     gpu::doInBatch("Resample::run", args->_context, [&](gpu::Batch& batch) {
         batch.enableStereo(false);
         batch.setFramebuffer(destinationFramebuffer);
@@ -182,7 +174,7 @@ void ToneMapAndResample::run(const RenderContextPointer& renderContext, const In
         batch.setProjectionTransform(glm::mat4());
         batch.resetViewTransform();
         batch.setPipeline(params._toneCurve == 4 ?
-            (args->_renderMode == RenderArgs::MIRROR_RENDER_MODE ? _piecewisePipeline : _piecewiseMirrorPipeline) :
+            (args->_renderMode == RenderArgs::MIRROR_RENDER_MODE ? _piecewiseMirrorPipeline : _piecewisePipeline) :
             (args->_renderMode == RenderArgs::MIRROR_RENDER_MODE ? _mirrorPipeline : _pipeline));
             
 
@@ -197,53 +189,6 @@ void ToneMapAndResample::run(const RenderContextPointer& renderContext, const In
 
     output = destinationFramebuffer;
 }
-
-float EvalCurveSegment(CurveSegment curve, float x) {
-    float x0 = (x - curve.m_offsetX) * curve.m_scaleX;
-    float y0 = 0.0f;
-
-    // log(0) is undefined but our function should evaluate to 0. There are better ways to handle this,
-    // but it's doing it the slow way here for clarity.
-    if (x0 > 0)
-    {
-        y0 = exp(curve.m_lnA + curve.m_B * log(x0));
-    }
-
-    return y0 * curve.m_scaleY + curve.m_offsetY;
-}
-
-// f(x) = (mx+b)^g
-// f'(x) = gm(mx+b)^(g-1)
-float EvalDerivativeLinearGamma(float m, float b, float g, float x) {
-    float ret = g * m * pow(m * x + b, g - 1.0f);
-    return ret;
-}
-
-// convert to y=mx+b
-void AsSlopeIntercept(float& m, float& b, float x0, float x1, float y0, float y1)
-{
-    float dy = (y1 - y0);
-    float dx = (x1 - x0);
-    if (dx == 0)
-        m = 1.0f;
-    else
-        m = dy / dx;
-
-    b = y0 - x0 * m;
-}
-
-// find a function of the form:
-//   f(x) = e^(lnA + Bln(x))
-// where
-//   f(0)   = 0; not really a constraint
-//   f(x0)  = y0
-//   f'(x0) = m
-static void SolveAB(float& lnA, float& B, float x0, float y0, float m)
-{
-    B = (m * x0) / y0;
-    lnA = logf(y0) - B * logf(x0);
-}
-
 
 float ALMOST_ZERO = 0.00001f;
 float ALMOST_ONE = 0.99999f;
@@ -261,9 +206,42 @@ float Clamp(float x) {
     return MaxFloat(ALMOST_ZERO, MinFloat(ALMOST_ONE, x));
 }
 
-CurveParamsDirect ToneMapAndResample::CalcDirectParamsFromUser(const CurveParamsUser srcParams) {
+// find a function of the form:
+//   f(x) = e^(lnA + Bln(x))
+// where
+//   f(0)   = 0; not really a constraint
+//   f(x0)  = y0
+//   f'(x0) = m
+vec2 SolveAB(float x0, float y0, float m) {
+    float B = (m * x0) / y0;
+    float lnA = log(y0) - B * log(x0);
+    return glm::vec2(lnA, B);
+}
 
-    CurveParamsDirect dstParams = CurveParamsDirect();
+// convert to y=mx+b
+vec2 AsSlopeIntercept(float x0, float x1, float y0, float y1) {
+    float dy = (y1 - y0);
+    float dx = (x1 - x0);
+    float m;
+    if (dx == 0)
+        m = 1.0f;
+    else
+        m = dy / dx;
+
+    float b = y0 - x0 * m;
+
+    return glm::vec2(m, b);
+}
+
+// f(x) = (mx+b)^g
+// f'(x) = gm(mx+b)^(g-1)
+float EvalDerivativeLinearGamma(float m, float b, float g, float x) {
+    float ret = g * m * pow(m * x + b, g - 1.0f);
+    return ret;
+}
+
+CurveParamsDirect ToneMapAndResample::CalcDirectParamsFromUser(const CurveParamsUser srcParams) {
+    CurveParamsDirect dstParams;// = CurveParamsDirect(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     // This is not actually the display gamma. It's just a UI space to avoid having to 
     // enter small numbers for the input.
@@ -293,7 +271,7 @@ CurveParamsDirect ToneMapAndResample::CalcDirectParamsFromUser(const CurveParams
     float y1 = y0 + y1_offset;
 
     // filmic shoulder strength is in F stops
-    float extraW = exp2(shoulderStrength) - 1.0f; // note that shoulder length does not affect white point
+    float extraW = exp2f(shoulderStrength) - 1.0f; // note that shoulder length does not affect white point
 
     float W = initialW + extraW;
 
@@ -316,7 +294,7 @@ CurveParamsDirect ToneMapAndResample::CalcDirectParamsFromUser(const CurveParams
 FullCurve ToneMapAndResample::CreateCurve(const CurveParamsDirect srcParams) {
     CurveParamsDirect params = srcParams;
 
-    FullCurve dstCurve;
+    FullCurve dstCurve;// = FullCurve(1.0, 1.0, 0.25, 0.25, 0.75, 0.75);
 
     dstCurve.m_W = srcParams.m_W;
     dstCurve.m_invW = 1.0f / srcParams.m_W;
@@ -331,9 +309,9 @@ FullCurve ToneMapAndResample::CreateCurve(const CurveParamsDirect srcParams) {
     float shoulderM = 0.0f;
     float endpointM = 0.0f;
     //{
-    float m, b;
-
-    AsSlopeIntercept(m, b, params.m_x0, params.m_x1, params.m_y0, params.m_y1);
+    vec2 mb = AsSlopeIntercept(params.m_x0, params.m_x1, params.m_y0, params.m_y1);
+    float m = mb[0];
+    float b = mb[1];
 
     float g = srcParams.m_gamma;
 
@@ -383,7 +361,10 @@ FullCurve ToneMapAndResample::CreateCurve(const CurveParamsDirect srcParams) {
     toeSegment.m_scaleX = 1.0f;
     toeSegment.m_scaleY = 1.0f;
 
-    SolveAB(toeSegment.m_lnA, toeSegment.m_B, params.m_x0, params.m_y0, toeM);
+    vec2 toeAB = SolveAB(params.m_x0, params.m_y0, toeM);
+    toeSegment.m_lnA = toeAB[0];
+    toeSegment.m_B = toeAB[1];
+    m_segments[0] = toeSegment;
     //}
 
     // shoulder section
@@ -394,10 +375,9 @@ FullCurve ToneMapAndResample::CreateCurve(const CurveParamsDirect srcParams) {
     float x0 = (1.0f + params.m_overshootX) - params.m_x1;
     float y0 = (1.0f + params.m_overshootY) - params.m_y1;
 
-    float lnA;
-    float B;
-
-    SolveAB(lnA, B, x0, y0, shoulderM);
+    vec2 shoulderAB = SolveAB(x0, y0, shoulderM);
+    float lnA = shoulderAB[0];
+    float B = shoulderAB[1];
 
     shoulderSegment.m_offsetX = (1.0f + params.m_overshootX);
     shoulderSegment.m_offsetY = (1.0f + params.m_overshootY);
@@ -427,4 +407,31 @@ FullCurve ToneMapAndResample::CreateCurve(const CurveParamsDirect srcParams) {
     m_segments[2].m_scaleY *= invScale;
     //}
     return dstCurve;
+}
+
+float ToneMapAndResample::EvalCurveSegment(CurveSegment curve, float x) {
+    float x0 = (x - curve.m_offsetX) * curve.m_scaleX;
+    float y0 = 0.0f;
+
+    // log(0) is undefined but our function should evaluate to 0. There are better ways to handle this,
+    // but it's doing it the slow way here for clarity.
+    if (x0 > 0)
+    {
+        y0 = exp(curve.m_lnA + curve.m_B * log(x0));
+    }
+
+    return y0 * curve.m_scaleY + curve.m_offsetY;
+}
+
+float ToneMapAndResample::EvalFullCurve(FullCurve curve, float srcX) {
+    float normX = srcX * curve.m_invW;
+    int index = (normX < curve.m_x0) ? 0 : ((normX < curve.m_x1) ? 1 : 2);
+    CurveSegment segment = m_segments[index];
+    float ret = EvalCurveSegment(segment, normX);
+    return ret;
+}
+
+
+std::vector<float> ToneMappingConfig::sampleCurve(int numSamples) {
+
 }
