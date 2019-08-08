@@ -199,32 +199,41 @@ private:
     // Class describing the uniform buffer with all the parameters common to the tone mapping shaders
     class Parameters {
     public:
-        float _shoulderOffsetX;
-        float _shoulderOffsetY;
-        float _shoulderLnA;
-        float _shoulderB;
+
+        int _toneCurve = (int)ToneCurve::Gamma22;
+        int _s00;
+        int _s01;
+        int _s02;
+
+        float _exposure = 0.0f;
+        float _twoPowExposure = 1.0f;
+        float _s10;
+        float _s11;
 
         float _toeLnA;
         float _toeB;
+        float _toeScaleY;
+        float _shoulderOffsetY;
+
+        float _shoulderLnA;
+        float _shoulderB;
+        float _shoulderOffsetX;
+        float _shoulderScaleY;
+
         float _linearLnA;
         float _linearB;
-
         float _linearOffsetX;
-        float _twoPowExposure = 1.0f;
-        float _fullCurveW;
-        float _fullCurveInvW;
+        float _linearScaleY;
 
         float _fullCurveX0;
         float _fullCurveY0;
         float _fullCurveX1;
         float _fullCurveY1;
 
-        float _toeScaleY;
-        float _linearScaleY;
-        float _shoulderScaleY;
-        float _s3;
-
-        int _toneCurve = (int)ToneCurve::Gamma22;
+        float _fullCurveW;
+        float _fullCurveInvW;
+        float _s30;
+        float _s31;
 
         Parameters() {}
     };

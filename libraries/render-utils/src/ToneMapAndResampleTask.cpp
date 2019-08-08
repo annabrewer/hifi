@@ -409,10 +409,10 @@ FullCurve ToneMapAndResample::CreateCurve(const CurveParamsDirect srcParams) {
     float scale = EvalCurveSegment(m_segments[2], 1.0f);
     float invScale = 1.0f / scale;
 
-    m_segments[0].m_offsetY *= invScale;
+    // linear and toe have an offset of zero so we don't need to scale their offsets, as we do for the shoulder
+
     m_segments[0].m_scaleY *= invScale;
 
-    m_segments[1].m_offsetY *= invScale;
     m_segments[1].m_scaleY *= invScale;
 
     m_segments[2].m_offsetY *= invScale;

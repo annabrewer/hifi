@@ -39,6 +39,7 @@ Rectangle {
                     ShadingModel {}
                 }
             }
+            
             Prop.PropFolderPanel {
                 label: "Bounding Boxes"
                 panelFrameData: Component {
@@ -51,12 +52,14 @@ Rectangle {
                     Framebuffer {}
                 }
             }
+            
             Prop.PropFolderPanel {
                 label: "Tone Mapping"
                 panelFrameData: Component {
                     ToneMapping {}
                 }
             }
+            
             Prop.PropFolderPanel {
                 label: "Antialiasing"
                 panelFrameData: Component {

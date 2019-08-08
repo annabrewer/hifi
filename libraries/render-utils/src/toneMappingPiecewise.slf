@@ -23,68 +23,67 @@ LAYOUT(binding=RENDER_UTILS_BUFFER_TM_PARAMS) uniform toneMappingParamsBuffer {
     ToneMappingParams params;
 };
 
+float getTwoPowExposure() {
+    return params._exp_2powExp_s0_s1.y;
+}
+
 float getToeLnA() {
-    return params._toeLnA_toeB_linearLnA_linearB.x;
+    return params._toeLnA_toeB_toeScaleY_shoulderOffsetY.x;
 }
 float getToeB() {
-    return params._toeLnA_toeB_linearLnA_linearB.y;
+    return params._toeLnA_toeB_toeScaleY_shoulderOffsetY.y;
 }
-float getLinearLnA() {
-    return params._toeLnA_toeB_linearLnA_linearB.z;
-}
-float getLinearB() {
-    return params._toeLnA_toeB_linearLnA_linearB.w;
-}
-
-float getShoulderOffsetX() {
-    return params._shoulderOffsetX_shoulderOffsetY_shoulderLnA_shoulderB.x;
+float getToeScaleY() {
+    return params._toeLnA_toeB_toeScaleY_shoulderOffsetY.z;
 }
 float getShoulderOffsetY() {
-    return params._shoulderOffsetX_shoulderOffsetY_shoulderLnA_shoulderB.y;
-}
-float getShoulderLnA() {
-    return params._shoulderOffsetX_shoulderOffsetY_shoulderLnA_shoulderB.z;
-}
-float getShoulderB() {
-    return params._shoulderOffsetX_shoulderOffsetY_shoulderLnA_shoulderB.w;
+    return params._toeLnA_toeB_toeScaleY_shoulderOffsetY.w;
 }
 
+float getShoulderLnA() {
+    return params._shoulderLnA_shoulderB_shoulderOffsetX_shoulderScaleY.x;
+}
+float getShoulderB() {
+    return params._shoulderLnA_shoulderB_shoulderOffsetX_shoulderScaleY.y;
+}
+float getShoulderOffsetX() {
+    return params._shoulderLnA_shoulderB_shoulderOffsetX_shoulderScaleY.z;
+}
+float getShoulderScaleY() {
+    return params._shoulderLnA_shoulderB_shoulderOffsetX_shoulderScaleY.w;
+}
+
+float getLinearLnA() {
+    return params._linearLnA_linearB_linearOffsetX_linearScaleY.x;
+}
+float getLinearB() {
+    return params._linearLnA_linearB_linearOffsetX_linearScaleY.y;
+}
 float getLinearOffsetX() {
-    return params._linearOffsetX_2powExp_w_invW.x;
+    return params._linearLnA_linearB_linearOffsetX_linearScaleY.z;
 }
-float getTwoPowExposure() {
-    return params._linearOffsetX_2powExp_w_invW.y;
-}
-float getW() {
-    return params._linearOffsetX_2powExp_w_invW.z;
-}
-float getInvW() {
-    return params._linearOffsetX_2powExp_w_invW.w;
+float getLinearScaleY() {
+    return params._linearLnA_linearB_linearOffsetX_linearScaleY.w;
 }
 
 float getX0() {
-    return params._x0_y0_x1_y1.x;
+    return params._fullCurveX0_fullCurveY0_fullCurveX1_fullCurveY1.x;
 }
 float getY0() {
-    return params._x0_y0_x1_y1.y;
+    return params._fullCurveX0_fullCurveY0_fullCurveX1_fullCurveY1.y;
 }
 float getX1() {
-    return params._x0_y0_x1_y1.z;
+    return params._fullCurveX0_fullCurveY0_fullCurveX1_fullCurveY1.z;
 }
 float getY1() {
-    return params._x0_y0_x1_y1.w;
+    return params._fullCurveX0_fullCurveY0_fullCurveX1_fullCurveY1.w;
 }
 
-float getToeScaleY() {
-    return params._toeScaleY_linearScaleY_shoulderScaleY_s3.x;
+float getW() {
+    return params._fullCurveW_fullCurveInvW_s0_s1.x;
 }
-
-float getLinearScaleY() {
-    return params._toeScaleY_linearScaleY_shoulderScaleY_s3.y;
-}
-
-float getShoulderScaleY() {
-    return params._toeScaleY_linearScaleY_shoulderScaleY_s3.z;
+float getInvW() {
+    return params._fullCurveW_fullCurveInvW_s0_s1.y;
 }
 
 CurveSegment m_segments[3];

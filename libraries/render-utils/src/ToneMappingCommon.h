@@ -12,12 +12,14 @@
 // Hack comment to absorb the extra '//' scribe prepends anna
 
 struct ToneMappingParams {
-    vec4 _shoulderOffsetX_shoulderOffsetY_shoulderLnA_shoulderB;
-    vec4 _toeLnA_toeB_linearLnA_linearB;
-    vec4 _linearOffsetX_2powExp_w_invW;
-    vec4 _x0_y0_x1_y1;
-    vec4 _toeScaleY_linearScaleY_shoulderScaleY_s3;
-    ivec4 toneCurve_s0_s1_s2;
+    ivec4 _toneCurve_s0_s1_s2;
+    vec4 _exp_2powExp_s0_s1;
+
+    vec4 _toeLnA_toeB_toeScaleY_shoulderOffsetY;
+    vec4 _shoulderLnA_shoulderB_shoulderOffsetX_shoulderScaleY;
+    vec4 _linearLnA_linearB_linearOffsetX_linearScaleY;
+    vec4 _fullCurveX0_fullCurveY0_fullCurveX1_fullCurveY1;
+    vec4 _fullCurveW_fullCurveInvW_s0_s1;
 };
 
 struct CurveSegment {
