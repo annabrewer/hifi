@@ -15,13 +15,8 @@ import "../../lib/plotperf"
 
 Column {
 
-    function evalEvenHeight() {
-        // Why do we have to do that manually ? cannot seem to find a qml / anchor / layout mode that does that ?
-        return (height - spacing * (children.length - 1)) / children.length
-    }
-
     anchors.left: parent.left
-    anchors.right: parent.right 
+    anchors.right: parent.right   
     
     Prop.PropEnum {
         label: "Tone Curve"
@@ -36,9 +31,6 @@ Column {
                 ]
         anchors.left: parent.left
         anchors.right: parent.right 
-        onValueChanged: {
-        
-        }
     }
     Prop.PropScalar {
         label: "Exposure"

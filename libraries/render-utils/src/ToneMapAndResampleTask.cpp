@@ -446,7 +446,7 @@ QVector<int> ToneMappingConfig::sampleCurve(int segmentIndex, float lowerBound, 
 
     for (int i = 0; i < (segmentIndex == 0 ? toeResolution : shoulderResolution); i++) {
         float eval = EvalCurveSegment(segment, lowerBound + i * stepSize);
-        float evalLarger = eval * 10000.0;
+        float evalLarger = eval * 10000.0;// dataResolution;
         int sample = (int)evalLarger;
         samples.append(sample);
     }

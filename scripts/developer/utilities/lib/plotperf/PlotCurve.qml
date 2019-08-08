@@ -32,7 +32,7 @@ Item {
     property var shoulderStart
     property var shoulderEnd
 
-    property var dataResolution
+    property var dataResolution: 10000.0
 
     Component.onCompleted: {
         pullFreshValues();

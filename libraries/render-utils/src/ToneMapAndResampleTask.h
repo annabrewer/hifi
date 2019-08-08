@@ -103,7 +103,7 @@ public:
     int toeResolution{ 50 };
     int shoulderResolution{ 50 };
 
-    int dataResolution{ 10000 };
+    float dataResolution{ 10000.0f };
     float getDataResolution() { return dataResolution; }
 
     float exposure{ 0.0f };
