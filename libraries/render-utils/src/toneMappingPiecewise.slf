@@ -17,37 +17,7 @@
 //
 
 <@include render-utils/ShaderConstants.h@>
-
-struct ToneMappingParams {
-    vec4 _shoulderOffsetX_shoulderOffsetY_shoulderLnA_shoulderB;
-    vec4 _toeLnA_toeB_linearLnA_linearB;
-    vec4 _linearOffsetX_2powExp_w_invW;
-    vec4 _x0_y0_x1_y1;
-    vec4 _toeScaleY_linearScaleY_shoulderScaleY_s3;
-    ivec4 toneCurve_s0_s1_s2;
-};
-
-struct CurveSegment {
-	float m_offsetX;
-	float m_offsetY;
-	float m_scaleX; // always 1 or -1
-	float m_scaleY;
-	float m_lnA;
-	float m_B;
-};
-
-struct FullCurve
-{
-	float m_W;
-	float m_invW;
-
-	float m_x0;
-	float m_y0;
-    float m_x1;
-	float m_y1;
-};
-
-CurveSegment m_segments[3];
+<@include ToneMappingCommon.h@>
 
 LAYOUT(binding=RENDER_UTILS_BUFFER_TM_PARAMS) uniform toneMappingParamsBuffer {
     ToneMappingParams params;
@@ -117,31 +87,33 @@ float getShoulderScaleY() {
     return params._toeScaleY_linearScaleY_shoulderScaleY_s3.z;
 }
 
+CurveSegment m_segments[3];
+
 LAYOUT(binding=RENDER_UTILS_TEXTURE_TM_COLOR) uniform sampler2D colorMap;
 
 layout(location=0) in vec2 varTexCoord0;
 layout(location=0) out vec4 outFragColor;
 
 float EvalCurveSegment(CurveSegment curve, float x) {
-    float x0 = (x - curve.m_offsetX)*curve.m_scaleX;
-	float y0 = 0.0f;
+    float x0 = (x - curve.m_offsetX) * curve.m_scaleX;
+    float y0 = 0.0f;
 
-	// log(0) is undefined but our function should evaluate to 0. There are better ways to handle this,
-	// but it's doing it the slow way here for clarity.
-	if (x0 > 0)
-	{
-		y0 = exp(curve.m_lnA + curve.m_B*log(x0));
-	}
+    // log(0) is undefined but our function should evaluate to 0. There are better ways to handle this,
+    // but it's doing it the slow way here for clarity.
+    if (x0 > 0)
+    {
+        y0 = exp(curve.m_lnA + curve.m_B * log(x0));
+    }
 
-	return y0*curve.m_scaleY + curve.m_offsetY;
+    return y0 * curve.m_scaleY + curve.m_offsetY;
 }
 
 float EvalFullCurve(FullCurve curve, float srcX) {
-	float normX = srcX * curve.m_invW;
-	int index = (normX < curve.m_x0) ? 0 : ((normX < curve.m_x1) ? 1 : 2);
-	CurveSegment segment = m_segments[index];
-	float ret = EvalCurveSegment(segment, normX);
-	return ret;
+    float normX = srcX * curve.m_invW;
+    int index = (normX < curve.m_x0) ? 0 : ((normX < curve.m_x1) ? 1 : 2);
+    CurveSegment segment = m_segments[index];
+    float ret = EvalCurveSegment(segment, normX);
+    return ret;
 }
 
 void main(void) {

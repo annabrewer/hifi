@@ -14,15 +14,7 @@
 //
 
 <@include render-utils/ShaderConstants.h@>
-
-struct ToneMappingParams {
-    vec4 _shoulderOffsetX_shoulderOffsetY_shoulderLnA_shoulderB;
-    vec4 _toeLnA_toeB_linearLnA_linearB;
-    vec4 _linearOffsetX_2powExp_w_invW;
-    vec4 _x0_y0_x1_y1;
-    vec4 _toeScaleY_linearScaleY_shoulderScaleY_s3;
-    ivec4 toneCurve_s0_s1_s2;
-};
+<@include ToneMappingCommon.h@>
 
 const float GAMMA_22 = 2.2;
 const float INV_GAMMA_22 = 1.0 / 2.2;
@@ -34,6 +26,7 @@ const int ToneCurveFilmic = 3;
 LAYOUT(binding=RENDER_UTILS_BUFFER_TM_PARAMS) uniform toneMappingParamsBuffer {
     ToneMappingParams params;
 };
+
 float getTwoPowExposure() {
     return params._linearOffsetX_2powExp_w_invW.y;
 }

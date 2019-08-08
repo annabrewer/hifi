@@ -20,6 +20,8 @@
 #include <render/Forward.h>
 #include <render/DrawTask.h>
 
+#include "ToneMappingCommon.h"
+
 enum class ToneCurve {
     // Different tone curve available
     None,
@@ -54,29 +56,9 @@ struct CurveParamsDirect {
     float m_gamma;
 };
 
-struct CurveSegment {
-    float m_offsetX;
-    float m_offsetY;
-    float m_scaleX; // always 1 or -1
-    float m_scaleY;
-    float m_lnA;
-    float m_B;
-};
-
-struct FullCurve
-{
-    float m_W;
-    float m_invW;
-
-    float m_x0;
-    float m_y0;
-    float m_x1;
-    float m_y1;
-};
-
 class ToneMappingConfig : public render::Job::Config {
     Q_OBJECT
-    Q_PROPERTY(float exposure MEMBER exposure WRITE setExposure);
+    Q_PROPERTY(float exposure MEMBER exposure WRITE setExposure );
     Q_PROPERTY(int curve MEMBER curve WRITE setCurve);
     Q_PROPERTY(float toeStrength MEMBER toeStrength WRITE setToeStrength);
     Q_PROPERTY(float toeLength MEMBER toeLength WRITE setToeLength);
@@ -84,10 +66,12 @@ class ToneMappingConfig : public render::Job::Config {
     Q_PROPERTY(float shoulderLength MEMBER shoulderLength WRITE setShoulderLength);
     Q_PROPERTY(float shoulderAngle MEMBER shoulderAngle WRITE setShoulderAngle);
     Q_PROPERTY(float gamma MEMBER gamma WRITE setGamma);
-    Q_PROPERTY(float x0 MEMBER x0);
-    Q_PROPERTY(float y0 MEMBER y0);
-    Q_PROPERTY(float x1 MEMBER x1);
-    Q_PROPERTY(float y1 MEMBER y1);
+    Q_PROPERTY(QVector<int> toeSamples MEMBER toeSamples READ getToeSamples);
+    Q_PROPERTY(QVector<int> shoulderSamples MEMBER shoulderSamples READ getShoulderSamples);
+    Q_PROPERTY(QVector<int> toeEnd MEMBER toeEnd READ getToeEnd);
+    Q_PROPERTY(QVector<int> shoulderStart MEMBER shoulderStart READ getShoulderStart);
+    Q_PROPERTY(QVector<int> shoulderEnd MEMBER shoulderEnd READ getShoulderEnd);
+    Q_PROPERTY(float dataResolution MEMBER dataResolution READ getDataResolution);
 
 public:
     ToneMappingConfig() : render::Job::Config(true) {}
@@ -101,7 +85,26 @@ public:
     void setShoulderAngle(float newShoulderAngle) { shoulderAngle = newShoulderAngle; emit dirty(); }
     void setGamma(float newGamma) { gamma = newGamma; emit dirty(); }
 
-    Q_INVOKABLE std::vector<float> sampleCurve(int index, int numSamples);
+    QVector<int> toeSamples;
+    QVector<int> getToeSamples();
+
+    QVector<int> shoulderSamples;
+    QVector<int> getShoulderSamples();
+
+    QVector<int> toeEnd;
+    QVector<int> getToeEnd();
+
+    QVector<int> shoulderStart;
+    QVector<int> getShoulderStart();
+
+    QVector<int> shoulderEnd;
+    QVector<int> getShoulderEnd();
+
+    int toeResolution{ 50 };
+    int shoulderResolution{ 50 };
+
+    int dataResolution{ 10000 };
+    float getDataResolution() { return dataResolution; }
 
     float exposure{ 0.0f };
     float toeStrength{ 0.5f };
@@ -112,7 +115,14 @@ public:
     float shoulderAngle{ 1.0f };
     float gamma{ 2.2f };
 
+    float x0{ 0.0f };
+    float y0{ 0.0f };
+    float x1{ 1.0f };
+    float y1{ 1.0f };
+
     int curve{ (int)ToneCurve::Gamma22 };
+
+    QVector<int> sampleCurve(int segmentIndex, float lowerBound, float upperBound);
 
 signals:
     void dirty();
@@ -158,15 +168,12 @@ public:
     void configure(const Config& config);
     void run(const render::RenderContextPointer& renderContext, const Input& input, Output& output);
 
-    CurveSegment m_segments[3];
-
     CurveParamsDirect CalcDirectParamsFromUser(const CurveParamsUser srcParams);
 
     FullCurve CreateCurve(const CurveParamsDirect srcParams);
 
-    float EvalCurveSegment(CurveSegment curve, float x);
-
-    FullCurve curve;
+    static CurveSegment m_segments[3];
+    static FullCurve fullCurve;
 
 protected:
     static gpu::PipelinePointer _pipeline;

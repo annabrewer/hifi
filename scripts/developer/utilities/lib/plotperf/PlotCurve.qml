@@ -23,54 +23,24 @@ Item {
     // The title of the graph
     property string title
 
-    // The object used as the default source object for the prop plots
-    property var object
-
     property var backgroundOpacity: 0.6
 
-    property var points
+    property var toeSamples
+    property var shoulderSamples
 
-    // Default value scale used to define the max value of the chart
-    property var valueScale: 1
+    property var toeEnd
+    property var shoulderStart
+    property var shoulderEnd
 
-    // Default value unit appended to the value displayed
-    property var valueUnit: ""
-
-    // Default number of digits displayed
-    property var valueNumDigits: 0
-    
-
-    property var valueMax : 1
-    property var valueMin : 0
-
-    property var displayMinAt0 : true
-    property var _displayMaxValue : 1
-    property var _displayMinValue : 0.1
-
-    property var _values
-    property var tick : 0
-
-    function createValues() {
-        pullFreshValues();
-    }
+    property var dataResolution
 
     Component.onCompleted: {
-        createValues();   
-    }
-
-    function pullFreshValues() {
-        // Wait until values are created to begin pulling
-        if (!_values) { return; }
-
-        var VALUE_HISTORY_SIZE = 100;
-        tick++;
-
-        mycanvas.requestPaint()
+        pullFreshValues();
     }
 
     Timer {
         interval: 100; running: true; repeat: true
-        onTriggered: pullFreshValues()
+        onTriggered: mycanvas.requestPaint()
     }
 
     Canvas {
@@ -80,66 +50,53 @@ Item {
         onPaint: {
             var lineHeight = 12;
 
-            function displayValue(val, unit) {
-                 return (val / root.valueScale).toFixed(root.valueNumDigits) + " " + unit
-            }
+            function plot(ctx) {
+                var verticalScale = 100.0;
+                var rightPoint = shoulderEnd;
+                var one = (dataResolution / rightPoint) * width;
 
-            function pixelFromVal(val, valScale) {
-                return lineHeight + (height - lineHeight) * (1 - (0.99) * (val - _displayMinValue) / (_displayMaxValue - _displayMinValue));
-            }
-            function valueFromPixel(pixY) {
-                return _displayMinValue + (((pixY - lineHeight) / (height - lineHeight) - 1) * (_displayMaxValue - _displayMinValue) / (-0.99));
-            }
-            function plotValueHistory(ctx, valHistory) {
-                var widthStep= width / (valHistory.length - 1);
+                var toeSteps = toeSamples.length;
+                var toeRatio = toeEnd / rightPoint;
+                var toePixelLength = toeRatio * width;
+                var toePixelStepSize = toePixelLength / (toeSteps - 1);
+
+                var shoulderSteps = shoulderSamples.length;
+                var shoulderRatioBefore = shoulderStart / rightPoint;
+                var scaledShoulderStart = shoulderRatioBefore * width;
+                var shoulderRatio = 1 - shoulderRatioBefore;
+                var shoulderPixelLength = shoulderRatio * width;
+                var shoulderPixelStepSize = shoulderPixelLength / (shoulderSteps - 1);
 
                 ctx.beginPath();
-                ctx.strokeStyle= color; // Green path
-                ctx.lineWidth="2";
-                ctx.moveTo(0, pixelFromVal(valHistory[0])); 
-                   
-                for (var i = 1; i < valHistory.length; i++) { 
-                    ctx.lineTo(i * widthStep, pixelFromVal(valHistory[i])); 
+
+                ctx.strokeStyle= "#555555";
+
+                ctx.moveTo(one, 0);
+                ctx.lineTo(one, height);
+
+                ctx.moveTo(0, height - verticalScale);
+                ctx.lineTo(width, height - verticalScale);
+
+                ctx.stroke();
+
+                ctx.beginPath();
+
+                ctx.strokeStyle= color;
+                ctx.lineWidth=lineWidth;
+                ctx.moveTo(0, height); 
+
+                for (var i = 0; i < toeSteps; i++) {
+                    ctx.lineTo(i * toePixelStepSize, height - (toeSamples[i] / verticalScale));
+                }
+                
+                for (var i = 0; i < shoulderSteps; i++) {
+                    ctx.lineTo(scaledShoulderStart + i * shoulderPixelStepSize, height - (shoulderSamples[i] / verticalScale));
                 }
 
                 ctx.stroke();
             }
-
-            function plot(ctx) {
-                ctx.beginPath();
-                ctx.strokeStyle= color;
-                ctx.lineWidth=lineWidth;
-                ctx.moveTo(0, height); 
-                
-                //ctx.bezierCurveTo(0, height, 20, height - 10, 50, 50); 
-
-                var point = points[0];
-                var value = point["prop"];
-
-                var val = point.object[value];
-
-                var w = width;
-                var h = height - 20;
-
-                /*
-                var x0 = ;
-                var y0 = ;
-                var x1 = ;
-                var y1 = ;
-                var W = ;
-
-                //toe
-                ctx.bezierCurveTo(20, height, 20, height, x0, y0); 
-                //linear section
-                ctx.bezierCurveTo(x0, y0, x0, y0, x1, y1); 
-                //shoulder
-                ctx.bezierCurveTo(x1, y1, x1 + x_add, y1 - y_add, W, height); 
-                */
-                
-                ctx.stroke();
-            }
             
-            function displayTitle(ctx, text, maxVal) {
+            function displayTitle(ctx, text) {
                 ctx.fillStyle = "grey";
                 ctx.textAlign = "right";
                
@@ -161,15 +118,7 @@ Item {
                 
             plot(ctx);
 
-            displayTitle(ctx, title, _displayMaxValue)
-        }
-    }
-
-    MouseArea {
-        id: hitbox
-        anchors.fill: mycanvas
-
-        onClicked: {
+            displayTitle(ctx, title)
         }
     }
 }

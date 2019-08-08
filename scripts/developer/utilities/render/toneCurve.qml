@@ -13,9 +13,8 @@ import QtQuick.Controls 1.4
 import "../lib/prop" as Prop
 import "../lib/plotperf"
 
-
 Column {
-    id: render2;   
+    id: toneCurve;   
     
     //color: hifi.colors.baseGray;
 
@@ -24,7 +23,7 @@ Column {
     //anchors.right: parent.right  
 
     anchors.margins: 10
-    
+
     Row {
         anchors.left: parent.left
         width: parent.width
@@ -32,52 +31,39 @@ Column {
         spacing: 5
 
         Repeater {
-            
+            id: rep
+
             model: [
+                "Global:#FFFFFF"
+                /*
                 "Red:#FF001A",
                 "Green:#009036",
                 "Blue:#009EE0"
+                */
             ]
 
             Item {
-                width: (parent.parent.width - 5) / 3
+                width: (parent.parent.width - (rep.count == 1 ? 0 : 10)) / rep.count
                 height: 400 
 
                 Column {
-                    width: parent.width
+                    width: parent.width - (rep.count == 1 ? 0 : 5)
                     spacing: 5
-                    
-                    function evalEvenHeight() {
-                        // Why do we have to do that manually ? cannot seem to find a qml / anchor / layout mode that does that ?
-                        return (height - spacing * (children.length - 1)) / children.length
-                    }
     
                     PlotCurve {
                         title: "Tone Curve " + modelData.split(":")[0]
-                        width: parent.width - 5
-                        object: parent.drawOpaqueConfig
-                        valueScale: 1
-                        valueNumDigits: 3
+                        width: parent.width
                         height: 160
                         color: modelData.split(":")[1]
                         lineWidth: 2
-                        points: 
-                        [
-                            {
-                                object: Render.getConfig("RenderMainView.ToneMapping"),
-                                prop: "toeLength"
-                            },
-                            {
-                                object: Render.getConfig("RenderMainView.ToneMapping"),
-                                prop: "toeStrength"
-                            },
-                            {
-                                object: Render.getConfig("RenderMainView.ToneMapping"),
-                                prop: "shoulderLength"
-                            }
-                        ]
+                        toeSamples: Render.getConfig("RenderMainView.ToneMapping").toeSamples
+                        shoulderSamples: Render.getConfig("RenderMainView.ToneMapping").shoulderSamples
+                        toeEnd: Render.getConfig("RenderMainView.ToneMapping").toeEnd
+                        shoulderStart: Render.getConfig("RenderMainView.ToneMapping").shoulderStart
+                        shoulderEnd: Render.getConfig("RenderMainView.ToneMapping").shoulderEnd
+                        dataResolution: Render.getConfig("RenderMainView.ToneMapping").dataResolution
                     }
-
+                    /*
                     Prop.PropScalar {
                         label: "Exposure"
                         object: Render.getConfig("RenderMainView.ToneMapping")
@@ -87,12 +73,13 @@ Column {
                         anchors.left: parent.left
                         anchors.right: parent.right 
                     }
+                    */
             
                     Repeater {
                         model: [
                             "Toe Strength:toeStrength",
                             "Toe Length:toeLength",
-                            "Shoulder Strength:shoulderStrength",
+                            "Shoulder Strength (Stops):shoulderStrength",
                             "Shoulder Length:shoulderLength",
                             "Shoulder Angle:shoulderAngle"
                         ]
