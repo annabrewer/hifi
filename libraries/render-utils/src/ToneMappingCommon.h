@@ -9,18 +9,7 @@
 // <@if not testvar@>
 // <@def testvar@>
 
-// Hack comment to absorb the extra '//' scribe prepends anna
-
-struct ToneMappingParams {
-    ivec4 _toneCurve_globalMode_s1_s2;
-    vec4 _exp_2powExp_s0_s1;
-
-    vec4 _toeLnA_toeB_toeScaleY_shoulderOffsetY;
-    vec4 _shoulderLnA_shoulderB_shoulderOffsetX_shoulderScaleY;
-    vec4 _linearLnA_linearB_linearOffsetX_linearScaleY;
-    vec4 _fullCurveX0_fullCurveY0_fullCurveX1_fullCurveY1;
-    vec4 _fullCurveW_fullCurveInvW_s0_s1;
-};
+// Hack comment to absorb the extra '//' scribe prepends
 
 struct CurveSegment {
     float m_offsetX;

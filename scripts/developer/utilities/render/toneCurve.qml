@@ -16,7 +16,6 @@ import "../lib/plotperf"
 
 Column {
     id: toneCurve;   
-
     anchors.margins: 10
 
     Prop.PropBoolDropdown {
@@ -35,7 +34,6 @@ Column {
     Row {
         anchors.left: parent.left
         width: parent.width
-
         spacing: 5
 
         Repeater {

@@ -5,6 +5,9 @@
 //  Created by Anna Brewer on 7/3/19.
 //  Copyright 2019 High Fidelity, Inc.
 //
+//  Piecewise tone curve was adapted from John Hable's sample code:
+//  https://github.com/johnhable/fw-public.git
+//
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
@@ -72,7 +75,7 @@ struct CurveParamsDirect {
 
 class ToneMappingConfig : public render::Job::Config {
     Q_OBJECT
-    Q_PROPERTY(float exposure MEMBER exposure WRITE setExposure );
+    Q_PROPERTY(float exposure MEMBER exposure WRITE setExposure);
     Q_PROPERTY(int curve MEMBER curve WRITE setCurve);
 
     Q_PROPERTY(float toeStrengthALL READ getToeStrengthALL WRITE setToeStrengthALL);
@@ -231,7 +234,6 @@ public:
 
     int channelMode{ (int)ChannelMode::Global };
 
-    //QVector<int> sampleCurve(int segmentIndex, float lowerBound, float upperBound);
     QVector<int> ToneMappingConfig::sampleCurve(int segmentIndex);
 
 signals:
@@ -254,22 +256,16 @@ public:
     ToneCurve getToneCurve() const { return (ToneCurve)_parametersBuffer.get<Parameters>()._globals._toneCurve; }
 
     void setToeStrength(glm::vec4 strength);
-    //glm::vec4 getToeStrength() const { return userParams.m_toeStrength; }
 
     void setToeLength(glm::vec4 length);
-    //glm::vec4 getToeLength() const { return userParams.m_toeLength; }
 
     void setShoulderStrength(glm::vec4 strength);
-    //glm::vec4 getShoulderStrength() const { return userParams.m_shoulderStrength; }
 
     void setShoulderLength(glm::vec4 length);
-    //glm::vec4 getShoulderLength() const { return userParams.m_shoulderLength; }
 
     void setShoulderAngle(glm::vec4 angle);
-    //glm::vec4 getShoulderAngle() const { return userParams.m_shoulderAngle; }
 
     void setGamma(glm::vec4 gamma);
-    //glm::vec4 getGamma() const { return userParams.m_gamma; }
 
     // Inputs: lightingFramebuffer, destinationFramebuffer
     using Input = render::VaryingSet2<gpu::FramebufferPointer, gpu::FramebufferPointer>;
@@ -309,55 +305,6 @@ protected:
 
 private:
     gpu::PipelinePointer _blitLightBuffer;
-
-    // Class describing the uniform buffer with all the parameters common to the tone mapping shaders
-    /*
-    typedef struct GlobalParameters {
-        int _toneCurve = (int)ToneCurve::Gamma22;
-        int _s00;
-        int _s01;
-        int _s02;
-
-        float _exposure = 0.0f;
-        float _twoPowExposure = 1.0f;
-        float _s10;
-        float _s11;
-    } GlobalParams;
-
-    typedef struct CurveParameters {
-        float _toeLnA;
-        float _toeB;
-        float _toeScaleY;
-        float _shoulderOffsetY;
-
-        float _shoulderLnA;
-        float _shoulderB;
-        float _shoulderOffsetX;
-        float _shoulderScaleY;
-
-        float _linearLnA;
-        float _linearB;
-        float _linearOffsetX;
-        float _linearScaleY;
-
-        float _fullCurveX0;
-        float _fullCurveY0;
-        float _fullCurveX1;
-        float _fullCurveY1;
-
-        float _fullCurveW;
-        float _fullCurveInvW;
-        float _s30;
-        float _s31;
-    } CurveParams;
-
-    struct Parameters {
-        GlobalParams _globals;
-        CurveParams _redParams;
-        CurveParams _greenParams;
-        CurveParams _blueParams;
-    };
-    */
 
     typedef gpu::BufferView UniformBufferView;
     gpu::BufferView _parametersBuffer;

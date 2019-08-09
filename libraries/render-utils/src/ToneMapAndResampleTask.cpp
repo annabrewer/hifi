@@ -160,7 +160,7 @@ void ToneMapAndResample::setGamma(glm::vec4 gamma) {
 void ToneMapAndResample::setCurveParams() {
     auto& allParams = _parametersBuffer.edit<Parameters>();
 
-    // in global mode we edit the first set of params, otherwise we edit the next 3 sets: R, G and B
+    // in global mode we edit the first set of params (global), otherwise we edit the next 3 sets (R, G and B individually)
     int start = globalMode ? 0 : 1;
     int end = globalMode ? 1 : 4;
 
@@ -217,7 +217,7 @@ void ToneMapAndResample::run(const RenderContextPointer& renderContext, const In
 
     if (_dirty && params._globals._toneCurve == (int)ToneCurve::Piecewise) {
 
-        // in global mode we edit the first set of params, otherwise we edit the next 3 sets: R, G and B
+        // in global mode we edit the first set of params (global), otherwise we edit the next 3 sets (R, G and B individually)
         int start = globalMode ? 0 : 1;
         int end = globalMode ? 1 : 4;
 
@@ -352,7 +352,7 @@ float EvalCurveSegment(CurveSegment curve, float x) {
 
 
 CurveParamsDirect ToneMapAndResample::CalcDirectParamsFromUser(const CurveParamsUser srcParams) {
-    CurveParamsDirect dstParams;// = CurveParamsDirect(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    CurveParamsDirect dstParams;
 
     // This is not actually the display gamma. It's just a UI space to avoid having to 
     // enter small numbers for the input.
@@ -402,7 +402,7 @@ CurveParamsDirect ToneMapAndResample::CalcDirectParamsFromUser(const CurveParams
 FullCurve ToneMapAndResample::CreateCurve(const CurveParamsDirect srcParams, int index) {
     CurveParamsDirect params = srcParams;
 
-    FullCurve dstCurve;// = FullCurve(1.0, 1.0, 0.25, 0.25, 0.75, 0.75);
+    FullCurve dstCurve;
 
     dstCurve.m_W = srcParams.m_W;
     dstCurve.m_invW = 1.0f / srcParams.m_W;

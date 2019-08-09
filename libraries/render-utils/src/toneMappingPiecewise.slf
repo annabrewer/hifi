@@ -9,7 +9,7 @@
 //  Created by Anna Brewer on 7/30/2019
 //  Copyright 2019 High Fidelity, Inc.
 //
-//  Adapted from John Hable's piecewise filmic curve sample code:
+//  Piecewise tone curve was adapted from John Hable's sample code:
 //  https://github.com/johnhable/fw-public.git
 //
 //  Distributed under the Apache License, Version 2.0.
@@ -22,7 +22,6 @@
 LAYOUT(binding=RENDER_UTILS_BUFFER_TM_PARAMS) uniform toneMappingParamsBuffer {
     Parameters allParams;
 };
-
 
 int getChannelMode() {
     return allParams._globals._channelMode;
