@@ -12,7 +12,7 @@
 // Hack comment to absorb the extra '//' scribe prepends anna
 
 struct ToneMappingParams {
-    ivec4 _toneCurve_s0_s1_s2;
+    ivec4 _toneCurve_globalMode_s1_s2;
     vec4 _exp_2powExp_s0_s1;
 
     vec4 _toeLnA_toeB_toeScaleY_shoulderOffsetY;
@@ -40,6 +40,58 @@ struct FullCurve
     float m_y0;
     float m_x1;
     float m_y1;
+};
+
+struct GlobalParams {
+    int _toneCurve;
+    int _s00;
+    int _s01;
+    int _s02;
+
+    float _exposure;
+    float _twoPowExposure;
+    float _s10;
+    float _s11;
+};
+
+struct CurveParams {
+    float _toeLnA;
+    float _toeB;
+    float _toeScaleY;
+    float _shoulderOffsetY;
+
+    float _shoulderLnA;
+    float _shoulderB;
+    float _shoulderOffsetX;
+    float _shoulderScaleY;
+
+    float _linearLnA;
+    float _linearB;
+    float _linearOffsetX;
+    float _linearScaleY;
+
+    float _fullCurveX0;
+    float _fullCurveY0;
+    float _fullCurveX1;
+    float _fullCurveY1;
+
+    float _fullCurveW;
+    float _fullCurveInvW;
+    float _s30;
+    float _s31;
+};
+
+struct Parameters {
+    // same for all curves
+    GlobalParams _globals;
+
+    // params to edit when in global mode
+    CurveParams _globalParams;
+
+    // params to edit when in spectral mode
+    CurveParams _redParams;
+    CurveParams _greenParams;
+    CurveParams _blueParams;
 };
 
 // Hack Comment

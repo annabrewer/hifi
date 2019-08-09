@@ -20,70 +20,70 @@
 <@include ToneMappingCommon.h@>
 
 LAYOUT(binding=RENDER_UTILS_BUFFER_TM_PARAMS) uniform toneMappingParamsBuffer {
-    ToneMappingParams params;
+    Parameters params;
 };
 
 float getTwoPowExposure() {
-    return params._exp_2powExp_s0_s1.y;
+    return params._globals._twoPowExposure;
 }
 
 float getToeLnA() {
-    return params._toeLnA_toeB_toeScaleY_shoulderOffsetY.x;
+    return params._redParams._toeLnA;
 }
 float getToeB() {
-    return params._toeLnA_toeB_toeScaleY_shoulderOffsetY.y;
+    return params._redParams._toeB;
 }
 float getToeScaleY() {
-    return params._toeLnA_toeB_toeScaleY_shoulderOffsetY.z;
+    return params._redParams._toeScaleY;
 }
 float getShoulderOffsetY() {
-    return params._toeLnA_toeB_toeScaleY_shoulderOffsetY.w;
+    return params._redParams._shoulderOffsetY;
 }
 
 float getShoulderLnA() {
-    return params._shoulderLnA_shoulderB_shoulderOffsetX_shoulderScaleY.x;
+    return params._redParams._shoulderLnA;
 }
 float getShoulderB() {
-    return params._shoulderLnA_shoulderB_shoulderOffsetX_shoulderScaleY.y;
+    return params._redParams._shoulderB;
 }
 float getShoulderOffsetX() {
-    return params._shoulderLnA_shoulderB_shoulderOffsetX_shoulderScaleY.z;
+    return params._redParams._shoulderOffsetX;
 }
 float getShoulderScaleY() {
-    return params._shoulderLnA_shoulderB_shoulderOffsetX_shoulderScaleY.w;
+    return params._redParams._shoulderScaleY;
 }
 
 float getLinearLnA() {
-    return params._linearLnA_linearB_linearOffsetX_linearScaleY.x;
+    return params._redParams._linearLnA;
 }
 float getLinearB() {
-    return params._linearLnA_linearB_linearOffsetX_linearScaleY.y;
+    return params._redParams._linearB;
 }
 float getLinearOffsetX() {
-    return params._linearLnA_linearB_linearOffsetX_linearScaleY.z;
+    return params._redParams._linearOffsetX;
 }
 float getLinearScaleY() {
-    return params._linearLnA_linearB_linearOffsetX_linearScaleY.w;
+    return params._redParams._linearScaleY;
 }
 
 float getX0() {
-    return params._fullCurveX0_fullCurveY0_fullCurveX1_fullCurveY1.x;
+    return params._redParams._fullCurveX0;
 }
 float getY0() {
-    return params._fullCurveX0_fullCurveY0_fullCurveX1_fullCurveY1.y;
+    return params._redParams._fullCurveY0;
 }
 float getX1() {
-    return params._fullCurveX0_fullCurveY0_fullCurveX1_fullCurveY1.z;
+    return params._redParams._fullCurveX1;
 }
 float getY1() {
-    return params._fullCurveX0_fullCurveY0_fullCurveX1_fullCurveY1.w;
+    return params._redParams._fullCurveY1;
 }
 
 float getW() {
-    return params._fullCurveW_fullCurveInvW_s0_s1.x;
+    return params._redParams._fullCurveW;
 }
 float getInvW() {
-    return params._fullCurveW_fullCurveInvW_s0_s1.y;
+    return params._redParams._fullCurveInvW;
 }
 
 CurveSegment m_segments[3];
@@ -134,5 +134,5 @@ void main(void) {
     float curveValG = EvalFullCurve(curve, srcColor.y);
     float curveValB = EvalFullCurve(curve, srcColor.z);
 
-    outFragColor = vec4(curveValR, curveValG, curveValB, 1.0);
+    outFragColor = vec4(getX0(), getX1(), 0.0, 1.0);
 }

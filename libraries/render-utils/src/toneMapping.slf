@@ -24,14 +24,14 @@ const int ToneCurveReinhard = 2;
 const int ToneCurveFilmic = 3;
 
 LAYOUT(binding=RENDER_UTILS_BUFFER_TM_PARAMS) uniform toneMappingParamsBuffer {
-    ToneMappingParams params;
+    Parameters params;
 };
 
 float getTwoPowExposure() {
-    return params._exp_2powExp_s0_s1.y;
+    return 1.0;//params._exp_2powExp_s0_s1.y;
 }
 int getToneCurve() {
-    return params._toneCurve_s0_s1_s2.x;
+    return 1;// params._toneCurve_s0_s1_s2.x;
 }
 
 LAYOUT(binding=RENDER_UTILS_TEXTURE_TM_COLOR) uniform sampler2D colorMap;

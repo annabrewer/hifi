@@ -12,17 +12,25 @@ import QtQuick 2.7
 import QtQuick.Controls 1.4
 import "../lib/prop" as Prop
 import "../lib/plotperf"
+//import "ChannelMode"
 
 Column {
     id: toneCurve;   
-    
-    //color: hifi.colors.baseGray;
-
-    //anchors.fill: parent
-    //anchors.left: parent.right
-    //anchors.right: parent.right  
 
     anchors.margins: 10
+
+    Prop.PropBoolDropdown {
+        id: channelMode
+        label: "Channel Mode"
+        object: Render.getConfig("RenderMainView.ToneMapping")
+        property: "channelMode"
+        enums: [
+                    "Global",
+                    "Spectral",
+                ]
+        anchors.left: parent.left
+        anchors.right: parent.right
+    }
 
     Row {
         anchors.left: parent.left
@@ -32,15 +40,9 @@ Column {
 
         Repeater {
             id: rep
-
-            model: [
-                "Global:#FFFFFF"
-                /*
-                "Red:#FF001A",
-                "Green:#009036",
-                "Blue:#009EE0"
-                */
-            ]
+            
+            model: { if (channelMode.value) return ["Red:#FF001A:0:1","Green:#009036:1:2","Blue:#009EE0:2:3"] 
+                    else return ["Global:#FFFFFF:0:0"] }
 
             Item {
                 width: (parent.parent.width - (rep.count == 1 ? 0 : 10)) / rep.count
@@ -62,29 +64,20 @@ Column {
                         shoulderStart: Render.getConfig("RenderMainView.ToneMapping").shoulderStart
                         shoulderEnd: Render.getConfig("RenderMainView.ToneMapping").shoulderEnd
                         dataResolution: Render.getConfig("RenderMainView.ToneMapping").dataResolution
+                        index: modelData.split(":")[2]
+                        global: !channelMode.value
                     }
-                    /*
-                    Prop.PropScalar {
-                        label: "Exposure"
-                        object: Render.getConfig("RenderMainView.ToneMapping")
-                        property: "exposure"
-                        min: -4
-                        max: 4
-                        anchors.left: parent.left
-                        anchors.right: parent.right 
-                    }
-                    */
-            
+
                     Repeater {
                         model: [
                             "Toe Strength:toeStrength",
                             "Toe Length:toeLength",
-                            "Shoulder Strength (Stops):shoulderStrength",
+                            "Shoulder Strength:shoulderStrength",
                             "Shoulder Length:shoulderLength",
                             "Shoulder Angle:shoulderAngle"
                         ]
 
-                        Prop.PropScalar {
+                        Prop.PropVector {
                             label: modelData.split(":")[0]
                             object: Render.getConfig("RenderMainView.ToneMapping")
                             property: modelData.split(":")[1]
@@ -92,10 +85,11 @@ Column {
                             max: 1
                             anchors.left: parent.left
                             anchors.right: parent.right 
+                            index: modelData.split(":")[2]
                         }
                     }
 
-                    Prop.PropScalar {
+                    Prop.PropVector {
                         label: "Gamma"
                         object: Render.getConfig("RenderMainView.ToneMapping")
                         property: "gamma"

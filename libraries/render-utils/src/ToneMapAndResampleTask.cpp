@@ -27,8 +27,9 @@ gpu::PipelinePointer ToneMapAndResample::_mirrorPipeline;
 gpu::PipelinePointer ToneMapAndResample::_piecewisePipeline;
 gpu::PipelinePointer ToneMapAndResample::_piecewiseMirrorPipeline;
 
-CurveSegment ToneMapAndResample::m_segments[3];
-FullCurve ToneMapAndResample::fullCurve;
+CurveSegment ToneMapAndResample::m_segments[9];
+FullCurve ToneMapAndResample::fullCurves[4];
+bool ToneMapAndResample::globalMode = true;
 
 ToneMapAndResample::ToneMapAndResample() {
     Parameters parameters;
@@ -52,83 +53,204 @@ void ToneMapAndResample::init() {
 void ToneMapAndResample::setExposure(float exposure) {
     auto& params = _parametersBuffer.get<Parameters>();
     float twoPowExp = powf(2.0, exposure);
-    if (params._twoPowExposure != twoPowExp) {
-        _parametersBuffer.edit<Parameters>()._twoPowExposure = twoPowExp;
+    if (params._globals._twoPowExposure != twoPowExp) {
+        _parametersBuffer.edit<Parameters>()._globals._exposure = exposure;
+        _parametersBuffer.edit<Parameters>()._globals._twoPowExposure = twoPowExp;
     }
 }
 
 void ToneMapAndResample::setToneCurve(ToneCurve curve) {
     auto& params = _parametersBuffer.get<Parameters>();
-    if (params._toneCurve != (int)curve) {
-        _parametersBuffer.edit<Parameters>()._toneCurve = (int)curve;
+    if (params._globals._toneCurve != (int)curve) {
+        _parametersBuffer.edit<Parameters>()._globals._toneCurve = (int)curve;
     }
 }
-void ToneMapAndResample::setToeStrength(float strength) {
-        userParams.m_toeStrength = strength;
-        _dirty = true;
+void ToneMapAndResample::setToeStrength(glm::ivec4 strength) {
+    int start = globalMode ? 0 : 1;
+    int end = globalMode ? 1 : 4;
+    AllCurveParamsUser allParams;
+    for (int i = start; i < end; i++) {
+        CurveParamsUser params;
+        switch (i) {
+        case 0: params = allParams._globalUserParams;
+            break;
+        case 1: params = allParams._redUserParams;
+            break;
+        case 2: params = allParams._greenUserParams;
+            break;
+        case 3: params = allParams._blueUserParams;
+            break;
+        }
+        params.m_toeStrength = strength[i];
+    }
+    _dirty = true;
 }
 
-void ToneMapAndResample::setToeLength(float length) {
-        userParams.m_toeLength = length;
-        _dirty = true;
+void ToneMapAndResample::setToeLength(glm::ivec4 length) {
+    int start = globalMode ? 0 : 1;
+    int end = globalMode ? 1 : 4;
+    AllCurveParamsUser allParams;
+    for (int i = start; i < end; i++) {
+        CurveParamsUser params;
+        switch (i) {
+        case 0: params = allParams._globalUserParams;
+            break;
+        case 1: params = allParams._redUserParams;
+            break;
+        case 2: params = allParams._greenUserParams;
+            break;
+        case 3: params = allParams._blueUserParams;
+            break;
+        }
+        params.m_toeLength = length[i];
+    }
+    _dirty = true;
 }
 
-void ToneMapAndResample::setShoulderStrength(float strength) {
-        userParams.m_shoulderStrength = strength;
-        _dirty = true;
+void ToneMapAndResample::setShoulderStrength(glm::ivec4 strength) {
+    int start = globalMode ? 0 : 1;
+    int end = globalMode ? 1 : 4;
+    AllCurveParamsUser allParams;
+    for (int i = start; i < end; i++) {
+        CurveParamsUser params;
+        switch (i) {
+        case 0: params = allParams._globalUserParams;
+            break;
+        case 1: params = allParams._redUserParams;
+            break;
+        case 2: params = allParams._greenUserParams;
+            break;
+        case 3: params = allParams._blueUserParams;
+            break;
+        }
+        params.m_shoulderStrength = strength[i];
+    }
+    _dirty = true;
 }
 
-void ToneMapAndResample::setShoulderLength(float length) {
-        userParams.m_shoulderLength = length;
-        _dirty = true;
+void ToneMapAndResample::setShoulderLength(glm::ivec4 length) {
+    int start = globalMode ? 0 : 1;
+    int end = globalMode ? 1 : 4;
+    AllCurveParamsUser allParams;
+    for (int i = start; i < end; i++) {
+        CurveParamsUser params;
+        switch (i) {
+        case 0: params = allParams._globalUserParams;
+            break;
+        case 1: params = allParams._redUserParams;
+            break;
+        case 2: params = allParams._greenUserParams;
+            break;
+        case 3: params = allParams._blueUserParams;
+            break;
+        }
+        params.m_shoulderStrength = length[i];
+    }
+    _dirty = true;
 }
 
-void ToneMapAndResample::setShoulderAngle(float angle) {
-        userParams.m_shoulderAngle = angle;
-        _dirty = true;
+void ToneMapAndResample::setShoulderAngle(glm::ivec4 angle) {
+    int start = globalMode ? 0 : 1;
+    int end = globalMode ? 1 : 4;
+    AllCurveParamsUser allParams;
+    for (int i = start; i < end; i++) {
+        CurveParamsUser params;
+        switch (i) {
+        case 0: params = allParams._globalUserParams;
+            break;
+        case 1: params = allParams._redUserParams;
+            break;
+        case 2: params = allParams._greenUserParams;
+            break;
+        case 3: params = allParams._blueUserParams;
+            break;
+        }
+        params.m_shoulderStrength = angle[i];
+    }
+    _dirty = true;
 }
 
-void ToneMapAndResample::setGamma(float gamma) {
-        userParams.m_gamma = gamma;
-        _dirty = true;
+void ToneMapAndResample::setGamma(glm::ivec4 gamma) {
+    int start = globalMode ? 0 : 1;
+    int end = globalMode ? 1 : 4;
+    AllCurveParamsUser allParams;
+    for (int i = start; i < end; i++) {
+        CurveParamsUser params;
+        switch (i) {
+        case 0: params = allParams._globalUserParams;
+            break;
+        case 1: params = allParams._redUserParams;
+            break;
+        case 2: params = allParams._greenUserParams;
+            break;
+        case 3: params = allParams._blueUserParams;
+            break;
+        }
+        params.m_shoulderStrength = gamma[i];
+    }
+    _dirty = true;
 }
 
-void ToneMapAndResample::setCurveParams(FullCurve curve) {
-    auto& params = _parametersBuffer.edit<Parameters>();
+void ToneMapAndResample::setCurveParams() {
+    auto& allParams = _parametersBuffer.edit<Parameters>();
 
-    CurveSegment toe = m_segments[0];
-    CurveSegment linear = m_segments[1];
-    CurveSegment shoulder = m_segments[2];
+    // in global mode we edit the first set of params, otherwise we edit the next 3 sets: R, G and B
+    int start = globalMode ? 0 : 1;
+    int end = globalMode ? 1 : 4;
 
-    params._shoulderOffsetX = shoulder.m_offsetX;
-    params._shoulderOffsetY = shoulder.m_offsetY;
-    params._shoulderLnA = shoulder.m_lnA;
-    params._shoulderB = shoulder.m_B;
-    params._toeLnA = toe.m_lnA;
-    params._toeB = toe.m_B;
-    params._linearLnA = linear.m_lnA;
-    params._linearB = linear.m_B;
-    params._linearOffsetX = linear.m_offsetX;
-    params._fullCurveW = curve.m_W;
-    params._fullCurveInvW = curve.m_invW;
-    params._fullCurveX0 = curve.m_x0;
-    params._fullCurveY0 = curve.m_y0;
-    params._fullCurveX1 = curve.m_x1;
-    params._fullCurveY1 = curve.m_y1;
-    params._toeScaleY = toe.m_scaleY;
-    params._linearScaleY = linear.m_scaleY;
-    params._shoulderScaleY = shoulder.m_scaleY;
+    for (int i = start; i < end; i++) {
+
+        CurveParams params;
+        switch (i) {
+            case 0: params = allParams._globalParams;
+                break;
+            case 1: params = allParams._redParams;
+                break;
+            case 2: params = allParams._greenParams;
+                break;
+            case 3: params = allParams._blueParams;
+                break;
+        }
+
+        CurveSegment toe = m_segments[3 * i + 0];
+        CurveSegment linear = m_segments[3 * i + 1];
+        CurveSegment shoulder = m_segments[3 * i + 2];
+
+        params._shoulderOffsetX = shoulder.m_offsetX;
+        params._shoulderOffsetY = shoulder.m_offsetY;
+        params._shoulderLnA = shoulder.m_lnA;
+        params._shoulderB = shoulder.m_B;
+        params._toeLnA = toe.m_lnA;
+        params._toeB = toe.m_B;
+        params._linearLnA = linear.m_lnA;
+        params._linearB = linear.m_B;
+        params._linearOffsetX = linear.m_offsetX;
+        params._fullCurveW = fullCurves[i].m_W;
+        params._fullCurveInvW = fullCurves[i].m_invW;
+        params._fullCurveX0 = fullCurves[i].m_x0;
+        params._fullCurveY0 = fullCurves[i].m_y0;
+        params._fullCurveX1 = fullCurves[i].m_x1;
+        params._fullCurveY1 = fullCurves[i].m_y1;
+        params._toeScaleY = toe.m_scaleY;
+        params._linearScaleY = linear.m_scaleY;
+        params._shoulderScaleY = shoulder.m_scaleY;
+    }
 }
 
 void ToneMapAndResample::configure(const Config& config) {
     setExposure(config.exposure);
     setToneCurve((ToneCurve)config.curve);
+    
+
     setToeStrength(config.toeStrength);
     setToeLength(config.toeLength);
     setShoulderStrength(config.shoulderStrength);
     setShoulderLength(config.shoulderLength);
     setShoulderAngle(config.shoulderAngle);
     setGamma(config.gamma);
+   
+
+    globalMode = (config.channelMode == 0);
 }
 
 void ToneMapAndResample::run(const RenderContextPointer& renderContext, const Input& input, Output& output) {
@@ -139,11 +261,34 @@ void ToneMapAndResample::run(const RenderContextPointer& renderContext, const In
 
     auto& params = _parametersBuffer.get<Parameters>();
 
-    if (_dirty && params._toneCurve == (int)ToneCurve::Piecewise) {
-        CurveParamsDirect curveParams = CalcDirectParamsFromUser(userParams);
-        fullCurve = CreateCurve(curveParams);
+    if (_dirty && params._globals._toneCurve == (int)ToneCurve::Piecewise) {
 
-        setCurveParams(fullCurve);
+        // in global mode we edit the first set of params, otherwise we edit the next 3 sets: R, G and B
+        int start = globalMode ? 0 : 1;
+        int end = globalMode ? 1 : 4;
+
+        for (int i = start; i < end; i++) {
+
+            AllCurveParamsUser userParams;
+
+            CurveParamsUser currentCurveParams;
+
+            switch (i) {
+                case 0: currentCurveParams = userParams._globalUserParams;
+                    break;
+                case 1: currentCurveParams = userParams._redUserParams;
+                    break;
+                case 2: currentCurveParams = userParams._greenUserParams;
+                    break;
+                case 3: currentCurveParams = userParams._blueUserParams;
+                    break;
+            }
+
+            CurveParamsDirect curveParams = CalcDirectParamsFromUser(currentCurveParams);
+            fullCurves[i] = CreateCurve(curveParams);
+        }
+        
+        setCurveParams();
 
         _dirty = false;
     }
@@ -176,7 +321,7 @@ void ToneMapAndResample::run(const RenderContextPointer& renderContext, const In
         batch.setViewportTransform(destViewport);
         batch.setProjectionTransform(glm::mat4());
         batch.resetViewTransform();
-        batch.setPipeline(params._toneCurve == 4 ?
+        batch.setPipeline(params._globals._toneCurve == 4 ?
             (args->_renderMode == RenderArgs::MIRROR_RENDER_MODE ? _piecewiseMirrorPipeline : _piecewisePipeline) :
             (args->_renderMode == RenderArgs::MIRROR_RENDER_MODE ? _mirrorPipeline : _pipeline));
             
@@ -422,65 +567,75 @@ FullCurve ToneMapAndResample::CreateCurve(const CurveParamsDirect srcParams) {
 }
 
 QVector<int> ToneMappingConfig::getToeSamples() {
-    float lowerBound = 0.0;
-    float upperBound = ToneMapAndResample::fullCurve.m_x0;
-
-    return sampleCurve(0, lowerBound, upperBound);
+    return sampleCurve(0);
 }
 
 QVector<int> ToneMappingConfig::getShoulderSamples() {
-
-    float lowerBound = ToneMapAndResample::fullCurve.m_x1;
-    float upperBound = ToneMapAndResample::fullCurve.m_W;
-    
-    return sampleCurve(2, lowerBound, upperBound);
+    return sampleCurve(2);
 }
 
-QVector<int> ToneMappingConfig::sampleCurve(int segmentIndex, float lowerBound, float upperBound) {
+QVector<int> ToneMappingConfig::sampleCurve(int segmentIndex) {
+
+    if (!(segmentIndex == 0 || segmentIndex == 2)) {
+        QVector<int> ret;
+        return ret; // should never get here
+    }
     
-    float stepSize = (upperBound - lowerBound) / ((segmentIndex == 0 ? toeResolution : shoulderResolution) - 1);
+    int start = ToneMapAndResample::globalMode ? 0 : 1;
+    int end = ToneMapAndResample::globalMode ? 1 : 4;
 
     CurveSegment segment = ToneMapAndResample::m_segments[segmentIndex];
 
     QVector<int> samples;
 
-    for (int i = 0; i < (segmentIndex == 0 ? toeResolution : shoulderResolution); i++) {
-        float eval = EvalCurveSegment(segment, lowerBound + i * stepSize);
-        float evalLarger = eval * 10000.0;// dataResolution;
-        int sample = (int)evalLarger;
-        samples.append(sample);
+    for (int i = start; i < end; i++) {
+
+        float lowerBound;
+        float upperBound;
+
+        if (segmentIndex == 0) {
+            lowerBound = 0.0;
+            upperBound = ToneMapAndResample::fullCurves[0].m_x0;
+        }
+        else if (segmentIndex == 2) {
+            lowerBound = ToneMapAndResample::fullCurves[0].m_x1;
+            upperBound = ToneMapAndResample::fullCurves[0].m_W;
+        }
+
+        float stepSize = (upperBound - lowerBound) / ((segmentIndex == 0 ? toeResolution : shoulderResolution) - 1);
+
+        for (int i = 0; i < (segmentIndex == 0 ? toeResolution : shoulderResolution); i++) {
+            float eval = EvalCurveSegment(segment, lowerBound + i * stepSize);
+            float evalLarger = eval * dataResolution;
+            int sample = (int)evalLarger;
+            samples.append(sample);
+        }
+
     }
 
     return samples;
 }
-/*
-float ToneMappingConfig::getToeEnd() {
-    return ToneMapAndResample::fullCurve.m_x0;
-}
-
-float ToneMappingConfig::getShoulderStart() {
-    return ToneMapAndResample::fullCurve.m_x1;
-}
-
-float ToneMappingConfig::getShoulderEnd() {
-    return ToneMapAndResample::fullCurve.m_W;
-}
-*/
 
 QVector<int> ToneMappingConfig::getToeEnd() {
     QVector<int> ret;
-    ret.append(ToneMapAndResample::fullCurve.m_x0 * dataResolution);
+    for (int i = 0; i < 4; i++) {
+        ret.append(ToneMapAndResample::fullCurves[i].m_x0 * dataResolution);
+    }
     return ret;
 }
 
 QVector<int> ToneMappingConfig::getShoulderStart() {
     QVector<int> ret;
-    ret.append(ToneMapAndResample::fullCurve.m_x1 * dataResolution);
+    for (int i = 0; i < 4; i++) {
+        ret.append(ToneMapAndResample::fullCurves[i].m_x1 * dataResolution);
+    }
     return ret;
 }
 
 QVector<int> ToneMappingConfig::getShoulderEnd() {
     QVector<int> ret;
-    ret.append(ToneMapAndResample::fullCurve.m_W * dataResolution);
+    for (int i = 0; i < 4; i++) {
+        ret.append(ToneMapAndResample::fullCurves[i].m_W * dataResolution);
+    }
     return ret;
 }
