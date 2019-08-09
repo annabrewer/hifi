@@ -28,10 +28,10 @@ LAYOUT(binding=RENDER_UTILS_BUFFER_TM_PARAMS) uniform toneMappingParamsBuffer {
 };
 
 float getTwoPowExposure() {
-    return 1.0;//params._exp_2powExp_s0_s1.y;
+    return params._globals._twoPowExposure;
 }
 int getToneCurve() {
-    return 1;// params._toneCurve_s0_s1_s2.x;
+    return params._globals._toneCurve;
 }
 
 LAYOUT(binding=RENDER_UTILS_TEXTURE_TM_COLOR) uniform sampler2D colorMap;

@@ -27,7 +27,7 @@ Item {
 
     property var toeSamples
     property var shoulderSamples
-
+    
     property var toeEnd
     property var shoulderStart
     property var shoulderEnd
@@ -44,7 +44,7 @@ Item {
     }
 
     Timer {
-        interval: 100; running: true; repeat: true
+        interval: 15; running: true; repeat: true
         onTriggered: mycanvas.requestPaint()
     }
 
@@ -55,12 +55,14 @@ Item {
         onPaint: {
             var lineHeight = 12;
 
+            var indexForSamples = (global ? index : index - 1)
+
             var toeSteps = (global ? toeSamples.length : toeSamples.length / 3);
-            var start = index * toeSteps;
+            var start = indexForSamples * toeSteps;
             var toeSamplesCurrent = toeSamples.slice(start, start + toeSteps);
 
             var shoulderSteps = (global ? shoulderSamples.length : shoulderSamples.length / 3);
-            var start = index * shoulderSteps;
+            var start = indexForSamples * shoulderSteps;
             var shoulderSamplesCurrent = shoulderSamples.slice(start, start + shoulderSteps);
 
             var toeEndCurrent = toeEnd[index];
@@ -102,8 +104,8 @@ Item {
 
                 ctx.beginPath();
 
-                ctx.strokeStyle= color;
-                ctx.lineWidth=lineWidth;
+                ctx.strokeStyle = color;
+                ctx.lineWidth = lineWidth;
                 ctx.moveTo(0, height); 
                 
                 for (var i = 0; i < toeSteps; i++) {

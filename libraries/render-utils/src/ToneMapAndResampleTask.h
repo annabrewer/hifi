@@ -75,12 +75,33 @@ class ToneMappingConfig : public render::Job::Config {
     Q_PROPERTY(float exposure MEMBER exposure WRITE setExposure );
     Q_PROPERTY(int curve MEMBER curve WRITE setCurve);
 
-    Q_PROPERTY(QVector<qreal> toeStrength MEMBER toeStrength WRITE setToeStrength READ getToeStrength);
-    Q_PROPERTY(QVector<qreal> toeLength MEMBER toeLength WRITE setToeLength READ getToeLength);
-    Q_PROPERTY(QVector4D shoulderStrength MEMBER shoulderStrength WRITE setShoulderStrength READ getShoulderStrength);
-    Q_PROPERTY(QVector4D shoulderLength MEMBER shoulderLength WRITE setShoulderLength READ getShoulderLength);
-    Q_PROPERTY(QVector4D shoulderAngle MEMBER shoulderAngle WRITE setShoulderAngle READ getShoulderAngle);
-    Q_PROPERTY(QVector4D gamma MEMBER gamma WRITE setGamma READ getGamma);
+    Q_PROPERTY(float toeStrengthALL READ getToeStrengthALL WRITE setToeStrengthALL);
+    Q_PROPERTY(float toeLengthALL READ getToeLengthALL WRITE setToeLengthALL);
+    Q_PROPERTY(float shoulderStrengthALL READ getShoulderStrengthALL WRITE setShoulderStrengthALL);
+    Q_PROPERTY(float shoulderLengthALL READ getShoulderLengthALL WRITE setShoulderLengthALL);
+    Q_PROPERTY(float shoulderAngleALL READ getShoulderAngleALL WRITE setShoulderAngleALL);
+    Q_PROPERTY(float gammaALL READ getGammaALL WRITE setGammaALL);
+
+    Q_PROPERTY(float toeStrengthR READ getToeStrengthR WRITE setToeStrengthR);
+    Q_PROPERTY(float toeLengthR READ getToeLengthR WRITE setToeLengthR);
+    Q_PROPERTY(float shoulderStrengthR READ getShoulderStrengthR WRITE setShoulderStrengthR);
+    Q_PROPERTY(float shoulderLengthR READ getShoulderLengthR WRITE setShoulderLengthR);
+    Q_PROPERTY(float shoulderAngleR READ getShoulderAngleR WRITE setShoulderAngleR);
+    Q_PROPERTY(float gammaR READ getGammaR WRITE setGammaR);
+
+    Q_PROPERTY(float toeStrengthG READ getToeStrengthG WRITE setToeStrengthG);
+    Q_PROPERTY(float toeLengthG READ getToeLengthG WRITE setToeLengthG);
+    Q_PROPERTY(float shoulderStrengthG READ getShoulderStrengthG WRITE setShoulderStrengthG);
+    Q_PROPERTY(float shoulderLengthG READ getShoulderLengthG WRITE setShoulderLengthG);
+    Q_PROPERTY(float shoulderAngleG READ getShoulderAngleG WRITE setShoulderAngleG);
+    Q_PROPERTY(float gammaG READ getGammaG WRITE setGammaG);
+
+    Q_PROPERTY(float toeStrengthB READ getToeStrengthB WRITE setToeStrengthB);
+    Q_PROPERTY(float toeLengthB READ getToeLengthB WRITE setToeLengthB);
+    Q_PROPERTY(float shoulderStrengthB READ getShoulderStrengthB WRITE setShoulderStrengthB);
+    Q_PROPERTY(float shoulderLengthB READ getShoulderLengthB WRITE setShoulderLengthB);
+    Q_PROPERTY(float shoulderAngleB READ getShoulderAngleB WRITE setShoulderAngleB);
+    Q_PROPERTY(float gammaB READ getGammaB WRITE setGammaB);
 
     Q_PROPERTY(QVector<int> toeSamples MEMBER toeSamples READ getToeSamples);
     Q_PROPERTY(QVector<int> shoulderSamples MEMBER shoulderSamples READ getShoulderSamples);
@@ -101,25 +122,82 @@ public:
     glm::vec4 shoulderStrength = glm::vec4(0.5, 0.5, 0.5, 0.5);
     glm::vec4 shoulderLength = glm::vec4(0.5, 0.5, 0.5, 0.5);
     glm::vec4 shoulderAngle = glm::vec4(0.5, 0.5, 0.5, 0.5);
-    glm::vec4 gamma = glm::vec4(0.5, 0.5, 0.5, 0.5);
+    glm::vec4 gamma = glm::vec4(2.2, 2.2, 2.2, 2.2);
 
-    void setToeStrength(QVector<qreal> newToeStrength) { toeStrength = glm::ivec4(newToeStrength.at(0), newToeStrength.at(1), newToeStrength.at(2), newToeStrength.at(3)); emit dirty(); }
-    QVector<qreal> getToeStrength() { QVector<qreal> ret{ toeStrength.x, toeStrength.y, toeStrength.z, toeStrength.w }; return ret;  }
+    void setToeStrengthALL(float newToeStrength) { toeStrength.x = newToeStrength; emit dirty(); }
+    float getToeStrengthALL() { return toeStrength.x; }
 
-    void setToeLength(QVector<qreal> newToeLength) { toeLength = glm::ivec4(newToeLength.at(0), newToeLength.at(1), newToeLength.at(2), newToeLength.at(3)); emit dirty(); }
-    QVector<qreal> getToeLength() { QVector<qreal> ret{ toeLength.x, toeLength.y, toeLength.z, toeLength.w }; return ret; }
+    void setToeLengthALL(float newToeLength) { toeLength.x = newToeLength; emit dirty(); }
+    float getToeLengthALL() { return toeLength.x; }
 
-    void setShoulderLength(QVector4D newShoulderLength) { shoulderLength = glm::ivec4(newShoulderLength.x(), newShoulderLength.y(), newShoulderLength.z(), newShoulderLength.w()); emit dirty(); }
-    QVector4D getShoulderLength() { return QVector4D(shoulderLength.x, shoulderLength.y, shoulderLength.z, shoulderLength.w); }
+    void setShoulderStrengthALL(float newShoulderStrength) { shoulderStrength.x = newShoulderStrength; emit dirty(); }
+    float getShoulderStrengthALL() { return shoulderStrength.x; }
 
-    void setShoulderStrength(QVector4D newShoulderStrength) { shoulderStrength = glm::ivec4(newShoulderStrength.x(), newShoulderStrength.y(), newShoulderStrength.z(), newShoulderStrength.w()); emit dirty(); }
-    QVector4D getShoulderStrength() { return QVector4D(shoulderStrength.x, shoulderStrength.y, shoulderStrength.z, shoulderStrength.w); }
+    void setShoulderLengthALL(float newShoulderLength) { shoulderLength.x = newShoulderLength;  emit dirty(); }
+    float getShoulderLengthALL() { return shoulderLength.x; }
 
-    void setShoulderAngle(QVector4D newShoulderAngle) { shoulderAngle = glm::ivec4(newShoulderAngle.x(), newShoulderAngle.y(), newShoulderAngle.z(), newShoulderAngle.w()); emit dirty(); }
-    QVector4D getShoulderAngle() { return QVector4D(shoulderAngle.x, shoulderAngle.y, shoulderAngle.z, shoulderAngle.w); }
+    void setShoulderAngleALL(float newShoulderAngle) { shoulderAngle.x = newShoulderAngle; emit dirty(); }
+    float getShoulderAngleALL() { return shoulderAngle.x; }
 
-    void setGamma(QVector4D newGamma) { gamma = glm::ivec4(newGamma.x(), newGamma.y(), newGamma.z(), newGamma.w()); emit dirty(); }
-    QVector4D getGamma() { return QVector4D(gamma.x, gamma.y, gamma.z, gamma.w); }
+    void setGammaALL(float newGamma) { gamma.x = newGamma; emit dirty(); }
+    float getGammaALL() { return gamma.x; }
+
+
+    void setToeStrengthR(float newToeStrength) { toeStrength.y = newToeStrength; emit dirty(); }
+    float getToeStrengthR() { return toeStrength.y; }
+
+    void setToeLengthR(float newToeLength) { toeLength.y = newToeLength; emit dirty(); }
+    float getToeLengthR() { return toeLength.y; }
+
+    void setShoulderStrengthR(float newShoulderStrength) { shoulderStrength.y = newShoulderStrength; emit dirty(); }
+    float getShoulderStrengthR() { return shoulderStrength.y; }
+
+    void setShoulderLengthR(float newShoulderLength) { shoulderLength.y = newShoulderLength;  emit dirty(); }
+    float getShoulderLengthR() { return shoulderLength.y; }
+
+    void setShoulderAngleR(float newShoulderAngle) { shoulderAngle.y = newShoulderAngle; emit dirty(); }
+    float getShoulderAngleR() { return shoulderAngle.y; }
+
+    void setGammaR(float newGamma) { gamma.y = newGamma; emit dirty(); }
+    float getGammaR() { return gamma.y; }
+
+
+    void setToeStrengthG(float newToeStrength) { toeStrength.z = newToeStrength; emit dirty(); }
+    float getToeStrengthG() { return toeStrength.z; }
+
+    void setToeLengthG(float newToeLength) { toeLength.z = newToeLength; emit dirty(); }
+    float getToeLengthG() { return toeLength.z; }
+
+    void setShoulderStrengthG(float newShoulderStrength) { shoulderStrength.z = newShoulderStrength; emit dirty(); }
+    float getShoulderStrengthG() { return shoulderStrength.z; }
+
+    void setShoulderLengthG(float newShoulderLength) { shoulderLength.z = newShoulderLength;  emit dirty(); }
+    float getShoulderLengthG() { return shoulderLength.z; }
+
+    void setShoulderAngleG(float newShoulderAngle) { shoulderAngle.z = newShoulderAngle; emit dirty(); }
+    float getShoulderAngleG() { return shoulderAngle.z; }
+
+    void setGammaG(float newGamma) { gamma.z = newGamma; emit dirty(); }
+    float getGammaG() { return gamma.z; }
+
+
+    void setToeStrengthB(float newToeStrength) { toeStrength.w = newToeStrength; emit dirty(); }
+    float getToeStrengthB() { return toeStrength.w; }
+
+    void setToeLengthB(float newToeLength) { toeLength.w = newToeLength; emit dirty(); }
+    float getToeLengthB() { return toeLength.w; }
+
+    void setShoulderStrengthB(float newShoulderStrength) { shoulderStrength.w = newShoulderStrength; emit dirty(); }
+    float getShoulderStrengthB() { return shoulderStrength.w; }
+
+    void setShoulderLengthB(float newShoulderLength) { shoulderLength.w = newShoulderLength;  emit dirty(); }
+    float getShoulderLengthB() { return shoulderLength.w; }
+
+    void setShoulderAngleB(float newShoulderAngle) { shoulderAngle.w = newShoulderAngle; emit dirty(); }
+    float getShoulderAngleB() { return shoulderAngle.w; }
+
+    void setGammaB(float newGamma) { gamma.w = newGamma; emit dirty(); }
+    float getGammaB() { return gamma.w; }
 
     QVector<int> toeSamples;
     QVector<int> getToeSamples();
@@ -167,28 +245,30 @@ public:
 
     void render(RenderArgs* args, const gpu::TexturePointer& lightingBuffer, gpu::FramebufferPointer& destinationBuffer);
 
+    void setChannelMode(ChannelMode mode);
+
     void setExposure(float exposure);
     float getExposure() const { return pow(_parametersBuffer.get<Parameters>()._globals._twoPowExposure, 0.5); }
 
     void setToneCurve(ToneCurve curve);
     ToneCurve getToneCurve() const { return (ToneCurve)_parametersBuffer.get<Parameters>()._globals._toneCurve; }
 
-    void setToeStrength(glm::ivec4 strength);
+    void setToeStrength(glm::vec4 strength);
     //glm::vec4 getToeStrength() const { return userParams.m_toeStrength; }
 
-    void setToeLength(glm::ivec4 length);
+    void setToeLength(glm::vec4 length);
     //glm::vec4 getToeLength() const { return userParams.m_toeLength; }
 
-    void setShoulderStrength(glm::ivec4 strength);
+    void setShoulderStrength(glm::vec4 strength);
     //glm::vec4 getShoulderStrength() const { return userParams.m_shoulderStrength; }
 
-    void setShoulderLength(glm::ivec4 length);
+    void setShoulderLength(glm::vec4 length);
     //glm::vec4 getShoulderLength() const { return userParams.m_shoulderLength; }
 
-    void setShoulderAngle(glm::ivec4 angle);
+    void setShoulderAngle(glm::vec4 angle);
     //glm::vec4 getShoulderAngle() const { return userParams.m_shoulderAngle; }
 
-    void setGamma(glm::ivec4 gamma);
+    void setGamma(glm::vec4 gamma);
     //glm::vec4 getGamma() const { return userParams.m_gamma; }
 
     // Inputs: lightingFramebuffer, destinationFramebuffer
@@ -202,9 +282,9 @@ public:
 
     CurveParamsDirect CalcDirectParamsFromUser(const CurveParamsUser srcParams);
 
-    FullCurve CreateCurve(const CurveParamsDirect srcParams);
+    FullCurve CreateCurve(const CurveParamsDirect srcParams, int index);
 
-    static CurveSegment m_segments[9];
+    static CurveSegment m_segments[12];
     static FullCurve fullCurves[4];
 
     static bool globalMode;

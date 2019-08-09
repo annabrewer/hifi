@@ -41,8 +41,8 @@ Column {
         Repeater {
             id: rep
             
-            model: { if (channelMode.value) return ["Red:#FF001A:0:1","Green:#009036:1:2","Blue:#009EE0:2:3"] 
-                    else return ["Global:#FFFFFF:0:0"] }
+            model: { if (channelMode.value) return ["Red:#FF001A:1:R","Green:#009036:2:G","Blue:#009EE0:3:B"] 
+                    else return ["Global:#FFFFFF:0:ALL"] }
 
             Item {
                 width: (parent.parent.width - (rep.count == 1 ? 0 : 10)) / rep.count
@@ -69,30 +69,31 @@ Column {
                     }
 
                     Repeater {
+                        // modelData in here refers to the modelData of the parent repeater
+                        // modelData.split(":")[3] will be "R", "G", or "B" or "ALL" for global
                         model: [
-                            "Toe Strength:toeStrength",
-                            "Toe Length:toeLength",
-                            "Shoulder Strength:shoulderStrength",
-                            "Shoulder Length:shoulderLength",
-                            "Shoulder Angle:shoulderAngle"
+                            modelData.split(":")[3] + ":Toe Length:toeLength",
+                            modelData.split(":")[3] + ":Toe Strength:toeStrength",
+                            modelData.split(":")[3] + ":Shoulder Strength:shoulderStrength",
+                            modelData.split(":")[3] + ":Shoulder Length:shoulderLength",
+                            modelData.split(":")[3] + ":Shoulder Angle:shoulderAngle"
                         ]
 
-                        Prop.PropVector {
-                            label: modelData.split(":")[0]
+                        Prop.PropScalar {
+                            label: modelData.split(":")[1]
                             object: Render.getConfig("RenderMainView.ToneMapping")
-                            property: modelData.split(":")[1]
+                            property: modelData.split(":")[2] + modelData.split(":")[0]
                             min: 0
                             max: 1
                             anchors.left: parent.left
                             anchors.right: parent.right 
-                            index: modelData.split(":")[2]
                         }
                     }
 
-                    Prop.PropVector {
+                    Prop.PropScalar {
                         label: "Gamma"
                         object: Render.getConfig("RenderMainView.ToneMapping")
-                        property: "gamma"
+                        property: "gamma" + modelData.split(":")[3]
                         numDigits: 1
                         min: 1
                         max: 3

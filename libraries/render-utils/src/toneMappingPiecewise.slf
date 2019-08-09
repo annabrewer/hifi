@@ -20,73 +20,78 @@
 <@include ToneMappingCommon.h@>
 
 LAYOUT(binding=RENDER_UTILS_BUFFER_TM_PARAMS) uniform toneMappingParamsBuffer {
-    Parameters params;
+    Parameters allParams;
 };
 
+
+int getChannelMode() {
+    return allParams._globals._channelMode;
+}
+
 float getTwoPowExposure() {
-    return params._globals._twoPowExposure;
+    return allParams._globals._twoPowExposure;
 }
 
-float getToeLnA() {
-    return params._redParams._toeLnA;
+float getToeLnA(CurveParams params) {
+    return params._toeLnA;
 }
-float getToeB() {
-    return params._redParams._toeB;
+float getToeB(CurveParams params) {
+    return params._toeB;
 }
-float getToeScaleY() {
-    return params._redParams._toeScaleY;
+float getToeScaleY(CurveParams params) {
+    return params._toeScaleY;
 }
-float getShoulderOffsetY() {
-    return params._redParams._shoulderOffsetY;
-}
-
-float getShoulderLnA() {
-    return params._redParams._shoulderLnA;
-}
-float getShoulderB() {
-    return params._redParams._shoulderB;
-}
-float getShoulderOffsetX() {
-    return params._redParams._shoulderOffsetX;
-}
-float getShoulderScaleY() {
-    return params._redParams._shoulderScaleY;
+float getShoulderOffsetY(CurveParams params) {
+    return params._shoulderOffsetY;
 }
 
-float getLinearLnA() {
-    return params._redParams._linearLnA;
+float getShoulderLnA(CurveParams params) {
+    return params._shoulderLnA;
 }
-float getLinearB() {
-    return params._redParams._linearB;
+float getShoulderB(CurveParams params) {
+    return params._shoulderB;
 }
-float getLinearOffsetX() {
-    return params._redParams._linearOffsetX;
+float getShoulderOffsetX(CurveParams params) {
+    return params._shoulderOffsetX;
 }
-float getLinearScaleY() {
-    return params._redParams._linearScaleY;
-}
-
-float getX0() {
-    return params._redParams._fullCurveX0;
-}
-float getY0() {
-    return params._redParams._fullCurveY0;
-}
-float getX1() {
-    return params._redParams._fullCurveX1;
-}
-float getY1() {
-    return params._redParams._fullCurveY1;
+float getShoulderScaleY(CurveParams params) {
+    return params._shoulderScaleY;
 }
 
-float getW() {
-    return params._redParams._fullCurveW;
+float getLinearLnA(CurveParams params) {
+    return params._linearLnA;
 }
-float getInvW() {
-    return params._redParams._fullCurveInvW;
+float getLinearB(CurveParams params) {
+    return params._linearB;
+}
+float getLinearOffsetX(CurveParams params) {
+    return params._linearOffsetX;
+}
+float getLinearScaleY(CurveParams params) {
+    return params._linearScaleY;
 }
 
-CurveSegment m_segments[3];
+float getX0(CurveParams params) {
+    return params._fullCurveX0;
+}
+float getY0(CurveParams params) {
+    return params._fullCurveY0;
+}
+float getX1(CurveParams params) {
+    return params._fullCurveX1;
+}
+float getY1(CurveParams params) {
+    return params._fullCurveY1;
+}
+
+float getW(CurveParams params) {
+    return params._fullCurveW;
+}
+float getInvW(CurveParams params) {
+    return params._fullCurveInvW;
+}
+
+CurveSegment m_segments[12];
 
 LAYOUT(binding=RENDER_UTILS_TEXTURE_TM_COLOR) uniform sampler2D colorMap;
 
@@ -107,10 +112,10 @@ float EvalCurveSegment(CurveSegment curve, float x) {
     return y0 * curve.m_scaleY + curve.m_offsetY;
 }
 
-float EvalFullCurve(FullCurve curve, float srcX) {
+float EvalFullCurve(FullCurve curve, float srcX, int curveIndex) {
     float normX = srcX * curve.m_invW;
     int index = (normX < curve.m_x0) ? 0 : ((normX < curve.m_x1) ? 1 : 2);
-    CurveSegment segment = m_segments[index];
+    CurveSegment segment = m_segments[curveIndex * 3 + index];
     float ret = EvalCurveSegment(segment, normX);
     return ret;
 }
@@ -124,15 +129,42 @@ void main(void) {
     vec3 fragColor = fragColorRaw.xyz;
     vec3 srcColor = fragColor * getTwoPowExposure();
 
-    FullCurve curve = FullCurve(getW(), getInvW(), getX0(), getY0(), getX1(), getY1());
+    int channelMode = getChannelMode();
 
-    m_segments[0] = CurveSegment(0.0, 0.0, 1.0, getToeScaleY(), getToeLnA(), getToeB());
-    m_segments[1] = CurveSegment(getLinearOffsetX(), 0.0, 1.0, getLinearScaleY(), getLinearLnA(), getLinearB());
-    m_segments[2] = CurveSegment(getShoulderOffsetX(), getShoulderOffsetY(), -1.0, getShoulderScaleY(), getShoulderLnA(), getShoulderB());
+    int start = channelMode == 0 ? 0 : 1;
+    int end = channelMode == 0 ? 1 : 4;
 
-    float curveValR = EvalFullCurve(curve, srcColor.x);
-    float curveValG = EvalFullCurve(curve, srcColor.y);
-    float curveValB = EvalFullCurve(curve, srcColor.z);
+    // curve evaluations for R, G and B values
+    // if in global mode they are all evaluated using global curve
+    // if in spectral mode each channel is evaluated using its own curve
+    float curveVals[3];
 
-    outFragColor = vec4(getX0(), getX1(), 0.0, 1.0);
+    for (int i = start; i < end; i++) {
+        
+        CurveParams p;
+        
+        if (i == 0) { p = allParams._globalParams; }
+        else if (i == 1) { p = allParams._redParams; }
+        else if (i == 2) { p = allParams._greenParams; }
+        else { p = allParams._blueParams; }
+
+        FullCurve curve = FullCurve(getW(p), getInvW(p), getX0(p), getY0(p), getX1(p), getY1(p));
+
+        m_segments[i * 3] = CurveSegment(0.0, 0.0, 1.0, getToeScaleY(p), getToeLnA(p), getToeB(p));
+        m_segments[i * 3 + 1] = CurveSegment(getLinearOffsetX(p), 0.0, 1.0, getLinearScaleY(p), getLinearLnA(p), getLinearB(p));
+        m_segments[i * 3 + 2] = CurveSegment(getShoulderOffsetX(p), getShoulderOffsetY(p), -1.0, getShoulderScaleY(p), getShoulderLnA(p), getShoulderB(p));
+
+        if (channelMode == 0) {
+            curveVals[0] = EvalFullCurve(curve, srcColor.x, i);
+            curveVals[1] = EvalFullCurve(curve, srcColor.y, i);
+            curveVals[2] = EvalFullCurve(curve, srcColor.z, i);
+        }
+        else {
+            curveVals[i - 1] = EvalFullCurve(curve, srcColor[i - 1], i);
+        }
+        
+    }
+
+    outFragColor = vec4(curveVals[0], curveVals[1], curveVals[2], 1.0);
+
 }

@@ -44,7 +44,7 @@ struct FullCurve
 
 struct GlobalParams {
     int _toneCurve;
-    int _s00;
+    int _channelMode;
     int _s01;
     int _s02;
 
