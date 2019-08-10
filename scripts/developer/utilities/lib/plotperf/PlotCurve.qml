@@ -1,8 +1,7 @@
 //
-//  PlotPerf.qml
-//  examples/utilities/render/plotperf
+//  PlotCurve.qml
 //
-//  Created by Sam Gateau on 3//2016
+//  Created by Anna Brewer on 8/2/2019
 //  Copyright 2016 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.

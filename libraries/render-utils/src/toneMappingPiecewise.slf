@@ -1,6 +1,5 @@
 <@include gpu/Config.slh@>
 <$VERSION_HEADER$>
-//  Generated on Sat Oct 24 09:34:37 2015
 //
 //  toneMappingPiecewise.frag
 //

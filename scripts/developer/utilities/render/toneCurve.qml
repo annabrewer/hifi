@@ -1,7 +1,7 @@
 //
-//  ToneMapping.qml
+//  ToneCurve.qml
 //
-//  Created by Sam Gateau on 4/17/2019
+//  Created by Anna Brewer on 8/5/2019
 //  Copyright 2019 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
@@ -12,7 +12,6 @@ import QtQuick 2.7
 import QtQuick.Controls 1.4
 import "../lib/prop" as Prop
 import "../lib/plotperf"
-//import "ChannelMode"
 
 Column {
     id: toneCurve;   
